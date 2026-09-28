@@ -1,0 +1,14 @@
+# Referensi asli dari Emergent (tidak dipakai di website)
+Emergent _ Fullstack App.html
+Emergent _ Fullstack App_files/
+
+# Tool lokal
+.claude/
+tailwindcss*.exe
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
