@@ -12,3 +12,6 @@ Thumbs.db
 desktop.ini
 .vscode/
 .idea/
+
+# Bahan compile CSS (hanya lokal, tidak dipakai website)
+tailwind/
