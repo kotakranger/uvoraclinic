@@ -18,18 +18,16 @@
   </div>
   <div data-reveal style="--d:.1s">
     <div class="overflow-hidden rounded-3xl border border-[#E6DFD1] bg-white">
-      <a class="relative block aspect-[4/3]" href="https://www.google.com/maps/search/?api=1&amp;query=<?= e(rawurlencode($site['address'])) ?>" target="_blank" rel="noopener noreferrer">
-        <img alt="Peta lokasi klinik" class="h-full w-full object-cover opacity-90" src="assets/images/map.jpg" loading="lazy">
-        <div class="absolute inset-0 flex items-center justify-center">
-          <span class="flex items-center gap-2 rounded-full bg-white/90 px-5 py-2.5 text-sm shadow-lg">
-            <?= icon('map-pin', 16, 'text-[#ab8f2c]') ?> Peta Interaktif
-          </span>
-        </div>
-      </a>
+      <div style="position:relative;aspect-ratio:4/3;overflow:hidden;isolation:isolate">
+        <iframe title="Peta lokasi Uvora Clinic" src="<?= e($site['maps_embed']) ?>" style="position:absolute;inset:0;width:100%;height:100%;border:0;z-index:0" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+        <a href="<?= e($site['maps_url']) ?>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-full bg-white/90 px-5 py-2.5 text-sm shadow-lg transition-colors hover:bg-white hover:text-[#ab8f2c]" style="position:absolute;left:1rem;top:1rem;z-index:10;pointer-events:auto">
+          <?= icon('map-pin', 16, 'text-[#ab8f2c]') ?> Buka di Google Maps
+        </a>
+      </div>
       <div class="space-y-3 p-8 text-sm text-[#6B6459]">
         <div class="flex items-start gap-3"><?= icon('map-pin', 18, 'mt-0.5 text-[#ab8f2c]') ?><?= e($site['address']) ?></div>
         <div class="flex items-center gap-3"><?= icon('clock', 18, 'text-[#ab8f2c]') ?><?= e($site['opening_hours']) ?></div>
-        <div class="flex items-center gap-3"><?= icon('phone', 18, 'text-[#ab8f2c]') ?><?= e($site['phone']) ?></div>
+        <div class="flex items-center gap-3"><?= icon('phone', 18, 'text-[#ab8f2c]') ?><a href="tel:+<?= e($site['whatsapp']) ?>" class="hover:text-[#ab8f2c]"><?= e($site['phone']) ?></a></div>
       </div>
     </div>
   </div>

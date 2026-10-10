@@ -8,7 +8,7 @@
       <h4 class="text-xs uppercase tracking-[0.2em] text-[#9B9384]">Perawatan</h4>
       <ul class="mt-4 space-y-2 text-sm text-[#6B6459]">
         <?php foreach ($footer_treatments as $t): ?>
-          <li><a href="#perawatan" class="hover:text-[#ab8f2c]"><?= e($t) ?></a></li>
+          <li><a href="perawatan.php" class="hover:text-[#ab8f2c]"><?= e($t) ?></a></li>
         <?php endforeach; ?>
       </ul>
     </div>

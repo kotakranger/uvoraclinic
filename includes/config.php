@@ -5,18 +5,21 @@ $site = [
     'name'            => 'Uvora Clinic',
     'title'           => 'Uvora Clinic · Aesthetic Medicine',
     'description'     => 'Uvora Clinic — klinik estetika medis premium untuk kulit sehat dan bercahaya secara alami.',
-    'whatsapp'        => '6281210002000', // format internasional tanpa "+"
-    'opening_hours'   => 'Senin – Sabtu · 09.00 – 20.00 WIB',
-    'address'         => 'Jl. Senopati Raya No. 88, Kebayoran Baru, Jakarta Selatan 12190',
-    'phone'           => '+62 812-1000-2000',
+    'whatsapp'        => '6285139372484', // format internasional tanpa "+"
+    'opening_hours'   => 'Setiap hari · 10.00 – 18.00 WIB',
+    'address'         => 'Ruko Grand Galaxy City Blok RSOD No.10, RT.004/RW.019, Jaka Setia, Kec. Bekasi Selatan, Kota Bekasi, Jawa Barat 17147',
+    'phone'           => '0851-3937-2484',
+    'maps_url'        => 'https://www.google.com/maps/place/UVORA+Clinic/@-6.2717052,106.9706513,17z/data=!3m1!4b1!4m6!3m5!1s0x6f8fc4baa6f47dbb:0xe3af588e601fa651!8m2!3d-6.2717052!4d106.9706513!16s%2Fg%2F11zd8006l1',
+    'maps_embed'      => 'https://maps.google.com/maps?q=-6.2717052,106.9706513&z=17&output=embed',
 ];
 
 $nav_links = [
-    ['label' => 'Perawatan', 'href' => '#perawatan'],
-    ['label' => 'Dokter',    'href' => '#dokter'],
-    ['label' => 'Hasil',     'href' => '#hasil'],
-    ['label' => 'Testimoni', 'href' => '#testimoni'],
-    ['label' => 'Lokasi',    'href' => '#lokasi'],
+    ['label' => 'Perawatan', 'href' => 'perawatan.php'],
+    ['label' => 'Promo',     'href' => 'promo.php'],
+    ['label' => 'Dokter',    'href' => 'index.php#dokter'],
+    ['label' => 'Hasil',     'href' => 'index.php#hasil'],
+    ['label' => 'Testimoni', 'href' => 'index.php#testimoni'],
+    ['label' => 'Lokasi',    'href' => 'index.php#lokasi'],
 ];
 
 $trust_points = [
@@ -75,10 +78,34 @@ $concern_benefits = [
     'Tanpa waktu pemulihan panjang',
 ];
 
+// Foto dokter masih sementara — ganti file 'img' dengan foto asli. 'exp' & 'tags' opsional.
 $doctors = [
-    ['name' => 'dr. Anindya Paramitha, Sp.DVE', 'role' => 'Dermatovenereologi Estetika', 'exp' => '12+ tahun', 'tags' => ['Laser', 'Anti-Aging'],       'img' => 'assets/images/doctor-anindya.jpg'],
-    ['name' => 'dr. Raka Wijanarko, Sp.DVE',    'role' => 'Bedah Kulit & Kontur Wajah',  'exp' => '10+ tahun', 'tags' => ['Contouring', 'Filler'],      'img' => 'assets/images/doctor-raka.jpg'],
-    ['name' => 'dr. Salsabila Hartono, M.Ked',  'role' => 'Dokter Estetika Klinis',      'exp' => '8+ tahun',  'tags' => ['Acne', 'Skin Booster'],      'img' => 'assets/images/doctor-salsabila.jpg'],
+    [
+        'name'      => 'dr. Nurul Hidayah',
+        'role'      => 'Dokter Uvora Clinic',
+        'img'       => 'assets/images/doctor-salsabila.jpg',
+        'schedule'  => 'Senin – Sabtu · 10.00 – 18.00 WIB',
+        'expertise' => [
+            'Aesthetic Medicine',
+            'Skin Rejuvenation & Anti-Aging',
+            'Acne Management',
+            'Chemical Peeling',
+            'Skinbooster & Microneedling',
+        ],
+    ],
+    [
+        'name'      => 'dr. Nur Fatia Rahmawati',
+        'role'      => 'Dokter Uvora Clinic',
+        'img'       => 'assets/images/doctor-anindya.jpg',
+        'schedule'  => 'Senin – Sabtu · 10.00 – 18.00 WIB',
+        'expertise' => [
+            'Aesthetic Medicine',
+            'Laser & Light Therapy',
+            'Body Contouring & Slimming',
+            'Hair Restoration',
+            'Botox & Filler',
+        ],
+    ],
 ];
 
 $review_summary = ['rating' => '5.0', 'count' => '1.240+'];
@@ -89,8 +116,170 @@ $testimonials = [
     ['quote' => 'Klinik estetika terbaik yang pernah saya kunjungi. Timnya ramah dan sangat memahami kebutuhan kulit saya.',             'name' => 'Ayu Lestari', 'city' => 'Surabaya'],
 ];
 
-$footer_treatments = ['Laser Rejuvenation', 'Anti-Aging', 'Acne Solution', 'Skin Booster'];
-$footer_hours      = ['Senin – Jumat · 09.00 – 20.00', 'Sabtu · 09.00 – 18.00', 'Minggu · Tutup'];
+// Katalog harga perawatan (perawatan.php). Kategori mengikuti price list.
+// 'prefix' => tampil sebelum harga, mis. "Mulai".
+$treatment_categories = [
+    'hydrafacial' => ['label' => 'Hydrafacial', 'items' => [
+        ['name' => 'Acne Hydrafacial',        'price' => 259000],
+        ['name' => 'Brightening Hydrafacial', 'price' => 259000],
+        ['name' => 'Salmon DNA Hydrafacial',  'price' => 429000],
+    ]],
+    'peeling' => ['label' => 'Peeling Treatments', 'items' => [
+        ['name' => 'Brightening Peel',  'price' => 259000],
+        ['name' => 'Acne Peel',         'price' => 259000],
+        ['name' => 'Lhala Peel',        'price' => 399000],
+        ['name' => 'Lip Radiance Peel', 'price' => 399000],
+        ['name' => 'Eye Radiance Peel', 'price' => 399000],
+    ]],
+    'microneedling' => ['label' => 'Microneedling', 'items' => [
+        ['name' => 'Exosome Microneedle',       'price' => 899000],
+        ['name' => 'Microneedle Salmon DNA',    'price' => 899000],
+        ['name' => 'Microneedle Salmon DNA Eye', 'price' => 429000],
+    ]],
+    'skinbooster' => ['label' => 'Skinbooster', 'items' => [
+        ['name' => 'Acne Skinbooster',       'price' => 899000],
+        ['name' => 'Salmon DNA Polybooster', 'price' => 1899000],
+        ['name' => 'Salmon DNA Booster',     'price' => 1699000],
+        ['name' => 'Salmon DNA Eyebooster',  'price' => 1699000],
+        ['name' => 'Rejuran Healer',         'price' => 3999000],
+        ['name' => 'Rejuran HB',             'price' => 3699000],
+    ]],
+    'hair' => ['label' => 'Hair Treatments', 'items' => [
+        ['name' => 'Hair Restoration Therapy', 'price' => 1899000],
+    ]],
+    'slimming' => ['label' => 'Slimming', 'items' => [
+        ['name' => 'V-Line LipoSculpt',   'price' => 429000],
+        ['name' => 'BodySculpt Injection', 'price' => 689000],
+        ['name' => 'Uvora Face Define',   'price' => 429000],
+        ['name' => 'Uvora Body Define',   'price' => 689000],
+    ]],
+    'lainnya' => ['label' => 'Lainnya', 'items' => [
+        ['name' => 'Cauterisasi',      'price' => 179000, 'prefix' => 'Mulai'],
+        ['name' => 'Botox 100 UI',     'price' => 4899000],
+        ['name' => 'Mounjaro 2,5 mg',  'price' => 4589000],
+        ['name' => 'Mounjaro 5 mg',    'price' => 5219000],
+        ['name' => 'Collagen Therapy', 'price' => 7899000],
+    ]],
+];
+$treatment_note   = 'Gratis konsultasi dokter · Personalized treatment plans are available after consultation.';
+$consult_badge    = 'Free Doctor Consultation';
+
+// Pembagian section berdasarkan harga ('max' = batas atas, tidak termasuk). Tier ditentukan otomatis dari harga.
+$price_tiers = [
+    ['no' => '01', 'name' => 'Low Tier',  'range' => 'Harga di bawah Rp500.000',      'max' => 500000],
+    ['no' => '02', 'name' => 'Mid Tier',  'range' => 'Harga Rp500.000–Rp999.000',   'max' => 1000000],
+    ['no' => '03', 'name' => 'High Tier', 'range' => 'Harga mulai Rp1.000.000',       'max' => PHP_INT_MAX],
+];
+
+// Galeri foto & video di halaman detail (gaya marketplace: thumbnail bisa diganti-ganti).
+// Setiap perawatan punya beberapa gambar supaya galeri muncul seperti di Tokopedia.
+// Ganti dengan foto asli klinik saat tersedia.
+$treatment_media = [
+    // Hydrafacial
+    'acne-hydrafacial'        => ['assets/images/treatment-acne.jpg', 'assets/images/treatment-facial.jpg', 'assets/images/treatment-booster.jpg'],
+    'brightening-hydrafacial' => ['assets/images/treatment-facial.jpg', 'assets/images/treatment-peel.jpg', 'assets/images/treatment-booster.jpg'],
+    'salmon-dna-hydrafacial'  => ['assets/images/treatment-facial.jpg', 'assets/images/treatment-booster.jpg', 'assets/images/treatment-peel.jpg'],
+    // Peeling
+    'brightening-peel'  => ['assets/images/treatment-peel.jpg', 'assets/images/treatment-facial.jpg', 'assets/images/treatment-booster.jpg'],
+    'acne-peel'         => ['assets/images/treatment-acne.jpg', 'assets/images/treatment-peel.jpg', 'assets/images/treatment-facial.jpg'],
+    'lhala-peel'        => ['assets/images/treatment-peel.jpg', 'assets/images/treatment-booster.jpg', 'assets/images/treatment-facial.jpg'],
+    'lip-radiance-peel' => ['assets/images/treatment-peel.jpg', 'assets/images/treatment-facial.jpg', 'assets/images/treatment-antiaging.jpg'],
+    'eye-radiance-peel' => ['assets/images/treatment-peel.jpg', 'assets/images/treatment-antiaging.jpg', 'assets/images/treatment-booster.jpg'],
+    // Microneedling
+    'exosome-microneedle'        => ['assets/images/treatment-booster.jpg', 'assets/images/treatment-facial.jpg', 'assets/images/treatment-peel.jpg'],
+    'microneedle-salmon-dna'     => ['assets/images/treatment-booster.jpg', 'assets/images/treatment-peel.jpg', 'assets/images/treatment-facial.jpg'],
+    'microneedle-salmon-dna-eye' => ['assets/images/treatment-booster.jpg', 'assets/images/treatment-antiaging.jpg', 'assets/images/treatment-peel.jpg'],
+    // Skinbooster
+    'acne-skinbooster'        => ['assets/images/treatment-acne.jpg', 'assets/images/treatment-booster.jpg', 'assets/images/treatment-facial.jpg'],
+    'salmon-dna-polybooster'  => ['assets/images/treatment-booster.jpg', 'assets/images/treatment-facial.jpg', 'assets/images/treatment-antiaging.jpg'],
+    'salmon-dna-booster'      => ['assets/images/treatment-booster.jpg', 'assets/images/treatment-antiaging.jpg', 'assets/images/treatment-peel.jpg'],
+    'salmon-dna-eyebooster'   => ['assets/images/treatment-booster.jpg', 'assets/images/treatment-peel.jpg', 'assets/images/treatment-facial.jpg'],
+    'rejuran-healer'          => ['assets/images/treatment-antiaging.jpg', 'assets/images/treatment-booster.jpg', 'assets/images/treatment-facial.jpg'],
+    'rejuran-hb'              => ['assets/images/treatment-antiaging.jpg', 'assets/images/treatment-facial.jpg', 'assets/images/treatment-booster.jpg'],
+    // Hair
+    'hair-restoration-therapy' => ['assets/images/treatment-booster.jpg', 'assets/images/treatment-facial.jpg', 'assets/images/treatment-peel.jpg'],
+    // Slimming
+    'v-line-liposculpt'    => ['assets/images/treatment-antiaging.jpg', 'assets/images/treatment-booster.jpg', 'assets/images/treatment-facial.jpg'],
+    'bodysculpt-injection' => ['assets/images/treatment-antiaging.jpg', 'assets/images/treatment-peel.jpg', 'assets/images/treatment-booster.jpg'],
+    'uvora-face-define'    => ['assets/images/treatment-antiaging.jpg', 'assets/images/treatment-facial.jpg', 'assets/images/treatment-peel.jpg'],
+    'uvora-body-define'    => ['assets/images/treatment-antiaging.jpg', 'assets/images/treatment-booster.jpg', 'assets/images/treatment-peel.jpg'],
+    // Lainnya
+    'cauterisasi'      => ['assets/images/treatment-laser.jpg', 'assets/images/treatment-peel.jpg', 'assets/images/treatment-facial.jpg'],
+    'botox-100-ui'     => ['assets/images/treatment-antiaging.jpg', 'assets/images/treatment-booster.jpg', 'assets/images/treatment-facial.jpg'],
+    'mounjaro-2-5-mg'  => ['assets/images/treatment-antiaging.jpg', 'assets/images/treatment-booster.jpg', 'assets/images/treatment-peel.jpg'],
+    'mounjaro-5-mg'    => ['assets/images/treatment-antiaging.jpg', 'assets/images/treatment-peel.jpg', 'assets/images/treatment-booster.jpg'],
+    'collagen-therapy' => ['assets/images/treatment-antiaging.jpg', 'assets/images/treatment-facial.jpg', 'assets/images/treatment-booster.jpg'],
+];
+
+// ---------------------------------------------------------------------------
+// Promosi — data dummy, nanti bisa dikelola dari admin panel.
+$promotions = [
+    [
+        'slug'     => 'grand-opening-special',
+        'title'    => 'Grand Opening Special',
+        'subtitle' => 'Diskon 20% untuk Semua Perawatan',
+        'banner'   => 'assets/images/promo/grand-opening.jpg',
+        'period'   => '1 – 31 Oktober 2026',
+        'category' => 'Diskon',
+        'desc'     => 'Rayakan pembukaan Uvora Clinic dengan diskon spesial 20% untuk semua perawatan. Berlaku untuk kunjungan pertama Anda!',
+        'terms'    => [
+            'Diskon 20% berlaku untuk seluruh perawatan yang tersedia di Uvora Clinic.',
+            'Promo hanya berlaku untuk kunjungan pertama (pasien baru).',
+            'Wajib melakukan konsultasi dokter terlebih dahulu sebelum perawatan.',
+            'Tidak dapat digabung dengan promo atau voucher lainnya.',
+            'Berlaku untuk pembayaran tunai, debit, dan kartu kredit.',
+            'Kuota terbatas, maksimal 50 pasien selama periode promo.',
+            'Satu pasien hanya dapat menggunakan promo ini satu kali.',
+            'Pendaftaran promo melalui WhatsApp atau langsung datang ke klinik.',
+            'Pihak klinik berhak mengubah syarat dan ketentuan tanpa pemberitahuan sebelumnya.',
+        ],
+    ],
+    [
+        'slug'     => 'paket-hemat-hydrafacial',
+        'title'    => 'Paket Hemat Hydrafacial',
+        'subtitle' => '3 Sesi Hydrafacial — Hemat hingga Rp200.000',
+        'banner'   => 'assets/images/promo/paket-hydrafacial.jpg',
+        'period'   => '1 Oktober – 30 November 2026',
+        'category' => 'Paket',
+        'desc'     => 'Nikmati paket hemat 3 sesi Hydrafacial pilihan Anda dan hemat hingga Rp200.000 dari harga satuan.',
+        'terms'    => [
+            'Paket berlaku untuk 3 sesi Hydrafacial (Acne, Brightening, atau Salmon DNA).',
+            'Sesi harus digunakan dalam waktu 3 bulan sejak pembelian paket.',
+            'Pembayaran dilakukan di awal (full payment) saat membeli paket.',
+            'Paket tidak dapat ditukar uang kembali (non-refundable).',
+            'Jadwal perawatan harus dibuat melalui WhatsApp minimal H-1.',
+            'Konsultasi dokter gratis di setiap sesi.',
+            'Tidak dapat digabung dengan promo lainnya.',
+            'Berlaku untuk semua metode pembayaran.',
+            'Pengalihan paket ke orang lain tidak diperkenankan.',
+        ],
+    ],
+    [
+        'slug'     => 'referral-bonus',
+        'title'    => 'Ajak Teman, Dapat Bonus!',
+        'subtitle' => 'Bonus Rp100.000 untuk Kamu & Temanmu',
+        'banner'   => 'assets/images/promo/referral-bonus.jpg',
+        'period'   => 'Berlaku tanpa batas waktu',
+        'category' => 'Referral',
+        'desc'     => 'Ajak temanmu untuk perawatan di Uvora Clinic. Kamu dan temanmu masing-masing mendapat bonus Rp100.000.',
+        'terms'    => [
+            'Setiap pasien yang mereferensikan teman baru akan mendapat voucher Rp100.000.',
+            'Teman yang direferensikan juga akan mendapat voucher Rp100.000 untuk kunjungan pertama.',
+            'Voucher berlaku untuk semua perawatan dengan minimal transaksi Rp500.000.',
+            'Teman yang direferensikan harus merupakan pasien baru Uvora Clinic.',
+            'Voucher berlaku 30 hari sejak diterbitkan.',
+            'Tidak ada batasan jumlah referral per pasien.',
+            'Voucher tidak dapat ditukar uang tunai.',
+            'Voucher tidak dapat digabung dengan promo lain.',
+            'Informasikan kode referral ke kasir sebelum melakukan pembayaran.',
+            'Pihak klinik berhak mengubah atau menghentikan program ini sewaktu-waktu.',
+        ],
+    ],
+];
+
+$footer_treatments = ['Hydrafacial', 'Peeling Treatments', 'Microneedling', 'Skinbooster'];
+
+$footer_hours      = ['Senin – Minggu · 10.00 – 18.00'];
 $socials = [
     ['icon' => 'instagram', 'label' => 'Instagram', 'href' => '#'],
     ['icon' => 'facebook',  'label' => 'Facebook',  'href' => '#'],

@@ -20,6 +20,7 @@ $asset_version = max(
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700&display=swap">
   <link rel="stylesheet" href="assets/css/style.css?v=<?= e($asset_version) ?>">
+  <link rel="stylesheet" href="assets/css/perawatan.css?v=<?= e($asset_version) ?>">
   <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -29,6 +30,7 @@ $asset_version = max(
     include __DIR__ . '/partials/hero.php';
     include __DIR__ . '/partials/trust.php';
     include __DIR__ . '/partials/treatments.php';
+    include __DIR__ . '/partials/promo-carousel.php';
     include __DIR__ . '/partials/products.php';
     include __DIR__ . '/partials/results.php';
     include __DIR__ . '/partials/doctors.php';

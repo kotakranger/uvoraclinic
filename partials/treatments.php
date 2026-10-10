@@ -4,7 +4,7 @@
       <span class="text-xs uppercase tracking-[0.28em] text-[#ab8f2c] font-medium">Perawatan Unggulan</span>
       <h2 class="font-serif-display mt-4 text-4xl tracking-tight md:text-5xl">Solusi Medis Terkurasi</h2>
     </div>
-    <a href="#perawatan" class="hidden items-center gap-1 text-sm text-[#6B6459] hover:text-[#ab8f2c] md:flex">
+    <a href="perawatan.php" class="hidden items-center gap-1 text-sm text-[#6B6459] hover:text-[#ab8f2c] md:flex">
       Semua perawatan <?= icon('arrow-up-right', 16) ?>
     </a>
   </div>
