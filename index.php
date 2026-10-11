@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/includes/config.php';
 require __DIR__ . '/includes/icons.php';
+require __DIR__ . '/includes/csrf.php';
 
 // Cache-busting: berubah otomatis setiap kali CSS/JS di-upload ulang.
 $asset_version = max(
@@ -44,12 +45,15 @@ $asset_version = max(
 
   <script>
     window.UVORA = <?= json_encode([
-        'whatsapp' => $site['whatsapp'],
-        'products' => $products,
-        'concerns' => $concerns,
+        'whatsapp'   => $site['whatsapp'],
+        'products'   => $products,
+        'concerns'   => $concerns,
+        'csrf_token' => csrf_token(),
+        'consult_api'=> 'api/consult.php',
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?>;
   </script>
   <script src="assets/js/lenis.min.js?v=<?= e($asset_version) ?>" defer></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script src="assets/js/main.js?v=<?= e($asset_version) ?>" defer></script>
 </body>
 </html>

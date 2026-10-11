@@ -1,0 +1,2 @@
+# Ensure PHP is processed and restrict direct file listing
+Options -Indexes

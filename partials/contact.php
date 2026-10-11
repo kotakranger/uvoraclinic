@@ -5,6 +5,11 @@
     <h2 class="font-serif-display mt-4 text-4xl tracking-tight md:text-5xl">Jadwalkan Kunjungan Anda</h2>
     <p class="mt-5 max-w-md text-[#6B6459]">Isi formulir dan tim kami akan menghubungi Anda dalam 1×24 jam untuk penjadwalan konsultasi.</p>
     <form class="mt-8 space-y-4" data-consult-form data-testid="opt1-consult-form">
+      <?php /* Honeypot: hidden from real users via CSS, bots will fill it */ ?>
+      <div style="position:absolute;left:-9999px;top:-9999px;opacity:0;pointer-events:none;" aria-hidden="true" tabindex="-1">
+        <label for="hp-website">Website</label>
+        <input type="text" id="hp-website" name="website" tabindex="-1" autocomplete="off">
+      </div>
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <input name="name" data-testid="opt1-input-name" placeholder="Nama Lengkap" aria-label="Nama Lengkap" required class="<?= $input_cls ?>">
         <input name="phone" type="tel" data-testid="opt1-input-phone" placeholder="No. WhatsApp" aria-label="No. WhatsApp" required class="<?= $input_cls ?>">
@@ -21,9 +26,12 @@
         <option value="Konsultasi dengan dokter">Belum tahu — konsultasi dengan dokter</option>
       </select>
       <textarea name="message" data-testid="opt1-input-message" placeholder="Ceritakan keluhan kulit Anda" aria-label="Keluhan kulit" rows="3" class="w-full <?= $input_cls ?>"></textarea>
+      <!-- Cloudflare Turnstile — bot & DDoS protection -->
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAAFT0rr7xwWFH3z3U" data-theme="light" data-language="id"></div>
       <button type="submit" class="group relative overflow-hidden rounded-full bg-[#dfcdaf] px-8 py-3.5 text-sm font-medium text-[#353535] transition-colors duration-500 hover:bg-[#ab8f2c] w-full" data-testid="opt1-consult-submit">
         <span class="relative z-10" data-submit-label>Kirim Permintaan Konsultasi</span>
       </button>
+      <p data-consult-error style="display:none;color:#b91c1c;font-size:.82rem;text-align:center;"></p>
     </form>
   </div>
   <div data-reveal style="--d:.1s">

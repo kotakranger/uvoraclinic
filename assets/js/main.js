@@ -268,24 +268,76 @@
     renderCart();
   }
 
-  // ---------------------------------------------------------------- Consultation form
+  // ---------------------------------------------------------------- Consultation form (secure API)
   var form = $("[data-consult-form]");
   if (form) {
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      var f = form.elements;
-      var name = f.name.value.trim();
-      var treatment = f.treatment.value.trim();
-      var complaint = f.message.value.trim();
-      var text = "Halo Uvora, saya " + name + " ingin bertanya tentang perawatan " + treatment + "." +
-        (complaint ? " Saya memiliki keluhan " + complaint : "");
-      openWhatsApp(text);
-      form.reset();
 
-      var label = $("[data-submit-label]", form);
-      var original = label.textContent;
-      label.textContent = "Terima kasih! Kami segera menghubungi Anda";
-      setTimeout(function () { label.textContent = original; }, 4000);
+      var label     = $("[data-submit-label]", form);
+      var errorEl   = $("[data-consult-error]", form);
+      var original  = label.textContent;
+      var f         = form.elements;
+
+      // Clear previous error
+      if (errorEl) { errorEl.style.display = "none"; errorEl.textContent = ""; }
+
+      // Loading state
+      label.textContent = "Mengirim…";
+      form.querySelector("[type=submit]").disabled = true;
+
+      // Build form data
+      var body = new FormData();
+      body.append("csrf_token", DATA.csrf_token || "");
+      body.append("name",      f.name.value.trim());
+      body.append("phone",     f.phone.value.trim());
+      body.append("treatment", f.treatment.value.trim());
+      body.append("message",   f.message ? f.message.value.trim() : "");
+      // Honeypot field (empty for humans)
+      if (f.website) body.append("website", f.website.value);
+      // Cloudflare Turnstile token
+      var tsToken = f["cf-turnstile-response"] ? f["cf-turnstile-response"].value : "";
+      body.append("cf-turnstile-response", tsToken);
+
+      fetch(DATA.consult_api || "api/consult.php", {
+        method: "POST",
+        body: body,
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data.ok) {
+            // Open WhatsApp
+            if (data.whatsapp) window.open(data.whatsapp, "_blank", "noopener");
+
+            form.reset();
+            // Reset Turnstile widget so it can be used again
+            if (window.turnstile) window.turnstile.reset();
+            label.textContent = "Terima kasih! Kami segera menghubungi Anda ✓";
+            setTimeout(function () {
+              label.textContent = original;
+              form.querySelector("[type=submit]").disabled = false;
+            }, 4000);
+          } else {
+            label.textContent = original;
+            form.querySelector("[type=submit]").disabled = false;
+            // Reset Turnstile so user can retry
+            if (window.turnstile) window.turnstile.reset();
+            if (errorEl) {
+              errorEl.textContent = data.error || "Terjadi kesalahan. Silakan coba lagi.";
+              errorEl.style.display = "block";
+            }
+          }
+        })
+        .catch(function () {
+          label.textContent = original;
+          form.querySelector("[type=submit]").disabled = false;
+          if (window.turnstile) window.turnstile.reset();
+          if (errorEl) {
+            errorEl.textContent = "Koneksi gagal. Silakan coba lagi.";
+            errorEl.style.display = "block";
+          }
+        });
     });
   }
 })();

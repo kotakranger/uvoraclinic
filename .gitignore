@@ -15,3 +15,13 @@ desktop.ini
 
 # Bahan compile CSS (hanya lokal, tidak dipakai website)
 tailwind/
+
+# Database files (SQLite — deprecated, moved to MySQL)
+*.sqlite
+data/*.sqlite
+
+# Database credentials — NEVER commit this file
+includes/db_config.php
+
+# User-uploaded media files (managed via admin panel)
+assets/uploads/
