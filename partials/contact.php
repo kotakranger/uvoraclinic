@@ -9,7 +9,17 @@
         <input name="name" data-testid="opt1-input-name" placeholder="Nama Lengkap" aria-label="Nama Lengkap" required class="<?= $input_cls ?>">
         <input name="phone" type="tel" data-testid="opt1-input-phone" placeholder="No. WhatsApp" aria-label="No. WhatsApp" required class="<?= $input_cls ?>">
       </div>
-      <input name="treatment" data-testid="opt1-input-treatment" placeholder="Perawatan yang diminati" aria-label="Perawatan yang diminati" class="w-full <?= $input_cls ?>">
+      <select name="treatment" required data-testid="opt1-input-treatment" aria-label="Perawatan yang diminati" class="w-full appearance-none <?= $input_cls ?> text-[#353535]" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23ab8f2c%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22m6 9 6 6 6-6%22/></svg>');background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.5rem">
+        <option value="" disabled selected>Perawatan yang diminati</option>
+        <?php foreach ($treatment_categories as $cat): ?>
+          <optgroup label="<?= e($cat['label']) ?>">
+            <?php foreach ($cat['items'] as $it): ?>
+              <option value="<?= e($it['name']) ?>"><?= e($it['name']) ?></option>
+            <?php endforeach; ?>
+          </optgroup>
+        <?php endforeach; ?>
+        <option value="Konsultasi dengan dokter">Belum tahu — konsultasi dengan dokter</option>
+      </select>
       <textarea name="message" data-testid="opt1-input-message" placeholder="Ceritakan keluhan kulit Anda" aria-label="Keluhan kulit" rows="3" class="w-full <?= $input_cls ?>"></textarea>
       <button type="submit" class="group relative overflow-hidden rounded-full bg-[#dfcdaf] px-8 py-3.5 text-sm font-medium text-[#353535] transition-colors duration-500 hover:bg-[#ab8f2c] w-full" data-testid="opt1-consult-submit">
         <span class="relative z-10" data-submit-label>Kirim Permintaan Konsultasi</span>

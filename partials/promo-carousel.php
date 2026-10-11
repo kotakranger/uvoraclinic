@@ -63,8 +63,12 @@
   function go(i) {
     idx = ((i % slides.length) + slides.length) % slides.length;
     var slide = slides[idx];
-    var offset = slide.offsetLeft - (track.clientWidth - slide.clientWidth) / 2;
+    // Center the active slide: its left edge minus the space needed to center it
+    var trackRect = track.getBoundingClientRect();
+    var slideRect = slide.getBoundingClientRect();
+    var offset = track.scrollLeft + (slideRect.left - trackRect.left) - (trackRect.width - slideRect.width) / 2;
     track.scrollTo({ left: offset, behavior: 'smooth' });
+    slides.forEach(function(s, n) { s.classList.toggle('is-active', n === idx); });
     dots.forEach(function(d, n) { d.classList.toggle('is-active', n === idx); });
   }
   function auto() { timer = setInterval(function() { go(idx + 1); }, 4500); }

@@ -70,10 +70,32 @@ include __DIR__ . '/partials/page-open.php';
             <!-- Share -->
             <div class="promo-d-share">
               <span>Bagikan promo ini</span>
+              <?php
+                $share_url  = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+                $share_text = $promo['title'] . ' — ' . $promo['subtitle'] . '. Lihat di Uvora Clinic! ' . $share_url;
+              ?>
               <div class="promo-d-share-btns">
-                <a href="https://wa.me/?text=<?= rawurlencode($promo['title'] . ' — ' . $promo['subtitle'] . '. Lihat di Uvora Clinic!') ?>" target="_blank" rel="noopener noreferrer" class="promo-share-btn" aria-label="WhatsApp" title="Bagikan via WhatsApp"><?= icon('phone', 16) ?></a>
-                <button type="button" class="promo-share-btn" aria-label="Salin link" title="Salin link" onclick="navigator.clipboard.writeText(location.href);this.textContent='✓';setTimeout(()=>{this.innerHTML='<?= icon('link', 16) ?>';},1500)"><?= icon('link', 16) ?></button>
+                <a href="https://wa.me/?text=<?= rawurlencode($share_text) ?>" target="_blank" rel="noopener noreferrer" class="promo-share-btn" aria-label="WhatsApp" title="Bagikan via WhatsApp"><?= icon('phone', 16) ?></a>
+                <button type="button" class="promo-share-btn" data-copy-link aria-label="Salin link" title="Salin link"><?= icon('link', 16) ?></button>
               </div>
+              <script>
+              (function(){
+                var b = document.querySelector('[data-copy-link]');
+                if (!b) return;
+                var icon = b.innerHTML;
+                b.addEventListener('click', function(){
+                  var url = location.href;
+                  var done = function(){ b.textContent = '✓'; setTimeout(function(){ b.innerHTML = icon; }, 1500); };
+                  if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(url).then(done, done);
+                  } else {
+                    var t = document.createElement('textarea'); t.value = url; document.body.appendChild(t); t.select();
+                    try { document.execCommand('copy'); } catch (e) {}
+                    document.body.removeChild(t); done();
+                  }
+                });
+              })();
+              </script>
             </div>
           </div>
 

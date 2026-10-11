@@ -274,13 +274,11 @@
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var f = form.elements;
-      var text = [
-        "Halo Uvora, saya ingin menjadwalkan konsultasi.",
-        "Nama: " + f.name.value.trim(),
-        "WhatsApp: " + f.phone.value.trim(),
-        f.treatment.value.trim() && "Perawatan: " + f.treatment.value.trim(),
-        f.message.value.trim() && "Keluhan: " + f.message.value.trim(),
-      ].filter(Boolean).join("\n");
+      var name = f.name.value.trim();
+      var treatment = f.treatment.value.trim();
+      var complaint = f.message.value.trim();
+      var text = "Halo Uvora, saya " + name + " ingin bertanya tentang perawatan " + treatment + "." +
+        (complaint ? " Saya memiliki keluhan " + complaint : "");
       openWhatsApp(text);
       form.reset();
 

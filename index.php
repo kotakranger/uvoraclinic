@@ -34,6 +34,7 @@ $asset_version = max(
     include __DIR__ . '/partials/products.php';
     include __DIR__ . '/partials/results.php';
     include __DIR__ . '/partials/doctors.php';
+    include __DIR__ . '/partials/content-reels.php';
     include __DIR__ . '/partials/testimonials.php';
     include __DIR__ . '/partials/contact.php';
     include __DIR__ . '/partials/footer.php';

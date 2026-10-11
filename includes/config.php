@@ -277,6 +277,21 @@ $promotions = [
     ],
 ];
 
+// ---------------------------------------------------------------------------
+// Content Reels — video pendek portrait (TikTok / IG Reels / YouTube Shorts).
+// Nantinya dikelola melalui panel backoffice. Saat ini data dummy.
+// 'embed_url' bisa berupa:
+//   - Instagram: https://www.instagram.com/p/{shortcode}/embed/
+//   - TikTok:    https://www.tiktok.com/embed/v2/{id}
+//   - YouTube:   https://www.youtube.com/embed/{id}?shorts=1
+$content_reels_follow = ['label' => 'Ikuti kami di TikTok', 'href' => 'https://www.tiktok.com/@indaha.l'];
+$content_reels = [
+    ['embed_url' => 'https://www.tiktok.com/embed/v2/7598809716193594631'],
+    ['embed_url' => 'https://www.instagram.com/p/DeRBzLhp4K4/embed/'],
+    ['embed_url' => 'https://www.instagram.com/p/DeRBzLhp4K4/embed/'],
+    ['embed_url' => 'https://www.instagram.com/p/DeRBzLhp4K4/embed/'],
+];
+
 $footer_treatments = ['Hydrafacial', 'Peeling Treatments', 'Microneedling', 'Skinbooster'];
 
 $footer_hours      = ['Senin – Minggu · 10.00 – 18.00'];
