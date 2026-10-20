@@ -10,7 +10,7 @@ $doctors = load_doctors($doctors);
 require __DIR__ . '/includes/catalog.php';
 require __DIR__ . '/includes/icons.php';
 
-$t = find_treatment($_GET['slug'] ?? '');
+$t = find_treatment(is_string($_GET['slug'] ?? null) ? $_GET['slug'] : '');
 if (!$t) {
     http_response_code(404);
     header('Location: perawatan.php');

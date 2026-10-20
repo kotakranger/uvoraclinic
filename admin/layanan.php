@@ -75,7 +75,7 @@ if ($action === 'del_item' && isset($_GET['id']) && csrf_verify()) {
     flash_set('ok', 'Layanan dihapus.');
     header('Location: layanan.php'); exit;
 }
-if ($action === 'toggle' && isset($_GET['id'])) {
+if ($action === 'toggle' && isset($_GET['id']) && csrf_verify()) {
     $pdo->prepare("UPDATE layanan_items SET is_active = 1 - is_active WHERE id=?")->execute([(int)$_GET['id']]);
     header('Location: layanan.php'); exit;
 }
@@ -210,7 +210,7 @@ admin_head('Layanan', $active_page);
           </td>
           <td><?= he($it['duration'] ?: '—') ?></td>
           <td>
-            <a href="layanan.php?action=toggle&id=<?= $it['id'] ?>" title="Toggle aktif/nonaktif">
+            <a href="layanan.php?action=toggle&id=<?= $it['id'] ?>&csrf_token=<?= $token ?>" title="Toggle aktif/nonaktif">
               <span class="tag <?= $it['is_active'] ? 'tag-active' : 'tag-inactive' ?>">
                 <?= $it['is_active'] ? 'Aktif' : 'Nonaktif' ?>
               </span>

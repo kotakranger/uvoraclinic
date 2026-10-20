@@ -132,7 +132,7 @@ $toggleMap = [
     'toggle_testimonial' => ['testimonials',  "testimonials"],
     'toggle_reel'        => ['content_reels', "reels"],
 ];
-if (isset($toggleMap[$action]) && isset($_GET['id'])) {
+if (isset($toggleMap[$action]) && isset($_GET['id']) && csrf_verify()) {
     [$table, $t] = $toggleMap[$action];
     $pdo->prepare("UPDATE {$table} SET is_active = 1 - is_active WHERE id=?")->execute([(int)$_GET['id']]);
     header("Location: content.php?tab={$t}"); exit;
@@ -195,7 +195,7 @@ admin_head('Dokter & Konten', $active_page);
           <td><?= he($d['role'] ?: '—') ?></td>
           <td style="font-size:.78rem;"><?= he($d['schedule'] ?: '—') ?></td>
           <td>
-            <a href="content.php?tab=doctors&action=toggle_doctor&id=<?= $d['id'] ?>">
+            <a href="content.php?tab=doctors&action=toggle_doctor&id=<?= $d['id'] ?>&csrf_token=<?= $token ?>">
               <span class="tag <?= $d['is_active'] ? 'tag-active' : 'tag-inactive' ?>"><?= $d['is_active'] ? 'Aktif' : 'Nonaktif' ?></span>
             </a>
           </td>
@@ -277,7 +277,7 @@ admin_head('Dokter & Konten', $active_page);
           <td><strong><?= he($t['author']) ?></strong></td>
           <td><?= he($t['city'] ?: '—') ?></td>
           <td>
-            <a href="content.php?tab=testimonials&action=toggle_testimonial&id=<?= $t['id'] ?>">
+            <a href="content.php?tab=testimonials&action=toggle_testimonial&id=<?= $t['id'] ?>&csrf_token=<?= $token ?>">
               <span class="tag <?= $t['is_active'] ? 'tag-active' : 'tag-inactive' ?>"><?= $t['is_active'] ? 'Aktif' : 'Nonaktif' ?></span>
             </a>
           </td>
@@ -358,7 +358,7 @@ admin_head('Dokter & Konten', $active_page);
             </span>
           </td>
           <td>
-            <a href="content.php?tab=reels&action=toggle_reel&id=<?= $r['id'] ?>">
+            <a href="content.php?tab=reels&action=toggle_reel&id=<?= $r['id'] ?>&csrf_token=<?= $token ?>">
               <span class="tag <?= $r['is_active'] ? 'tag-active' : 'tag-inactive' ?>"><?= $r['is_active'] ? 'Aktif' : 'Nonaktif' ?></span>
             </a>
           </td>

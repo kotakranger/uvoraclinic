@@ -6,7 +6,7 @@ require __DIR__ . '/includes/db.php';
 require __DIR__ . '/includes/data.php';
 
 // Find promo by slug — checks DB first, then falls back to config.php list
-$slug  = $_GET['slug'] ?? '';
+$slug  = is_string($_GET['slug'] ?? null) ? $_GET['slug'] : '';
 $promotions = load_promotions($promotions);
 $promo = find_promo_by_slug($slug, $promotions);
 if (!$promo) {

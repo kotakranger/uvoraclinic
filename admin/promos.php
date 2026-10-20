@@ -20,7 +20,7 @@ if ($action === 'del_promo' && isset($_GET['id']) && csrf_verify()) {
     flash_set('ok', 'Promo dihapus.');
     header('Location: promos.php'); exit;
 }
-if ($action === 'toggle' && isset($_GET['id'])) {
+if ($action === 'toggle' && isset($_GET['id']) && csrf_verify()) {
     $pdo->prepare("UPDATE promos SET is_active = 1 - is_active WHERE id=?")->execute([(int)$_GET['id']]);
     header('Location: promos.php'); exit;
 }
@@ -71,7 +71,7 @@ admin_head('Promo', $active_page);
           <td><?= he($p['category'] ?: '—') ?></td>
           <td style="font-size:.78rem;"><?= he($p['period'] ?: '—') ?></td>
           <td>
-            <a href="promos.php?action=toggle&id=<?= $p['id'] ?>">
+            <a href="promos.php?action=toggle&id=<?= $p['id'] ?>&csrf_token=<?= $token ?>">
               <span class="tag <?= $p['is_active'] ? 'tag-active' : 'tag-inactive' ?>">
                 <?= $p['is_active'] ? 'Aktif' : 'Nonaktif' ?>
               </span>

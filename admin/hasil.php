@@ -21,7 +21,7 @@ if ($action === 'del' && isset($_GET['id']) && csrf_verify()) {
     flash_set('ok', 'Hasil dihapus.');
     header('Location: hasil.php'); exit;
 }
-if ($action === 'toggle' && isset($_GET['id'])) {
+if ($action === 'toggle' && isset($_GET['id']) && csrf_verify()) {
     $pdo->prepare("UPDATE results SET is_active = 1 - is_active WHERE id=?")->execute([(int)$_GET['id']]);
     header('Location: hasil.php'); exit;
 }
@@ -56,7 +56,7 @@ flash_html();
             <div style="font-size:.74rem;color:var(--muted);"><?= he($r['treatment'] ?: '—') ?></div>
           </td>
           <td>
-            <a href="hasil.php?action=toggle&id=<?= (int)$r['id'] ?>">
+            <a href="hasil.php?action=toggle&id=<?= (int)$r['id'] ?>&csrf_token=<?= $token ?>">
               <span class="tag <?= $r['is_active'] ? 'tag-active' : 'tag-inactive' ?>"><?= $r['is_active'] ? 'Aktif' : 'Nonaktif' ?></span>
             </a>
           </td>

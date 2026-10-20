@@ -12,7 +12,7 @@ ensure_consultations_schema();
 $action = $_GET['action'] ?? '';
 
 // Mark as read
-if ($action === 'read' && isset($_GET['id'])) {
+if ($action === 'read' && isset($_GET['id']) && csrf_verify()) {
     $id = (int) $_GET['id'];
     db()->prepare("UPDATE consultations SET is_read = 1 WHERE id = ?")->execute([$id]);
     header('Location: index.php');
@@ -20,7 +20,7 @@ if ($action === 'read' && isset($_GET['id'])) {
 }
 
 // Mark as unread
-if ($action === 'unread' && isset($_GET['id'])) {
+if ($action === 'unread' && isset($_GET['id']) && csrf_verify()) {
     $id = (int) $_GET['id'];
     db()->prepare("UPDATE consultations SET is_read = 0 WHERE id = ?")->execute([$id]);
     header('Location: index.php');
@@ -245,11 +245,11 @@ $active_page = 'consultations';
 
                   <!-- Mark read / unread -->
                   <?php if (!$row['is_read']): ?>
-                    <a href="index.php?action=read&id=<?= (int)$row['id'] ?>" class="btn-sm btn-read" title="Tandai sudah dibaca">
+                    <a href="index.php?action=read&id=<?= (int)$row['id'] ?>&csrf_token=<?= urlencode($token) ?>" class="btn-sm btn-read" title="Tandai sudah dibaca">
                       <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
                     </a>
                   <?php else: ?>
-                    <a href="index.php?action=unread&id=<?= (int)$row['id'] ?>" class="btn-sm btn-read" title="Tandai belum dibaca">
+                    <a href="index.php?action=unread&id=<?= (int)$row['id'] ?>&csrf_token=<?= urlencode($token) ?>" class="btn-sm btn-read" title="Tandai belum dibaca">
                       <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
                     </a>
                   <?php endif; ?>
