@@ -6,8 +6,7 @@
  *  POST add_cat    — tambah kategori
  *  POST edit_cat   — edit kategori
  *  GET  del_cat    — hapus kategori
- *  POST add_item   — tambah layanan item
- *  POST edit_item  — edit layanan item
+ *  (tambah/edit layanan item → layanan-form.php, halaman terpisah)
  *  GET  del_item   — hapus item
  *  GET  toggle     — toggle is_active item
  */
@@ -15,11 +14,17 @@
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/csrf.php';
+require_once __DIR__ . '/../includes/uploader.php';
 require_once __DIR__ . '/../includes/admin_layout.php';
+require_once __DIR__ . '/../includes/data.php';
 
 admin_require_login();
 
+ensure_layanan_schema();
+
+
 $pdo    = db();
+
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 $token  = csrf_token();
 
@@ -29,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
     if ($action === 'add_cat') {
         $label = trim($_POST['label'] ?? '');
         $slug  = make_slug($_POST['slug'] ?? $label);
-        $sort  = (int)($_POST['sort_order'] ?? 0);
+        $sort  = (int)$pdo->query("SELECT COALESCE(MAX(sort_order),-1)+1 FROM layanan_categories")->fetchColumn();
         if ($label) {
             try {
                 $pdo->prepare("INSERT INTO layanan_categories (slug, label, sort_order) VALUES (?,?,?)")
@@ -46,66 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
         $id    = (int)($_POST['id'] ?? 0);
         $label = trim($_POST['label'] ?? '');
         $slug  = make_slug($_POST['slug'] ?? $label);
-        $sort  = (int)($_POST['sort_order'] ?? 0);
         if ($id && $label) {
             try {
-                $pdo->prepare("UPDATE layanan_categories SET slug=?, label=?, sort_order=? WHERE id=?")
-                    ->execute([$slug, $label, $sort, $id]);
+                $pdo->prepare("UPDATE layanan_categories SET slug=?, label=? WHERE id=?")
+                    ->execute([$slug, $label, $id]);
                 flash_set('ok', "Kategori diperbarui.");
-            } catch (PDOException $e) {
-                flash_set('err', 'Error: ' . $e->getMessage());
-            }
-        }
-        header('Location: layanan.php'); exit;
-    }
-
-    if ($action === 'add_item') {
-        $cat_id  = (int)($_POST['category_id'] ?? 0);
-        $name    = trim($_POST['name'] ?? '');
-        $slug    = make_slug($_POST['slug'] ?? $name);
-        $price   = (int)preg_replace('/\D/', '', $_POST['price'] ?? '0');
-        $prefix  = trim($_POST['price_prefix'] ?? 'Mulai Rp');
-        $dur     = trim($_POST['duration'] ?? '');
-        $desc    = trim($_POST['description'] ?? '');
-        $img     = trim($_POST['img'] ?? '');
-        $sort    = (int)($_POST['sort_order'] ?? 0);
-        $active  = isset($_POST['is_active']) ? 1 : 0;
-
-        if ($cat_id && $name) {
-            try {
-                $pdo->prepare("INSERT INTO layanan_items
-                    (category_id, slug, name, price, price_prefix, duration, description, img, sort_order, is_active)
-                    VALUES (?,?,?,?,?,?,?,?,?,?)")
-                    ->execute([$cat_id, $slug, $name, $price, $prefix, $dur, $desc, $img, $sort, $active]);
-                flash_set('ok', "Layanan \"{$name}\" berhasil ditambahkan.");
-            } catch (PDOException $e) {
-                flash_set('err', 'Error: ' . $e->getMessage());
-            }
-        }
-        header('Location: layanan.php'); exit;
-    }
-
-    if ($action === 'edit_item') {
-        $id      = (int)($_POST['id'] ?? 0);
-        $cat_id  = (int)($_POST['category_id'] ?? 0);
-        $name    = trim($_POST['name'] ?? '');
-        $slug    = make_slug($_POST['slug'] ?? $name);
-        $price   = (int)preg_replace('/\D/', '', $_POST['price'] ?? '0');
-        $prefix  = trim($_POST['price_prefix'] ?? 'Mulai Rp');
-        $dur     = trim($_POST['duration'] ?? '');
-        $desc    = trim($_POST['description'] ?? '');
-        $img     = trim($_POST['img'] ?? '');
-        $sort    = (int)($_POST['sort_order'] ?? 0);
-        $active  = isset($_POST['is_active']) ? 1 : 0;
-
-        if ($id && $name) {
-            try {
-                $pdo->prepare("UPDATE layanan_items
-                    SET category_id=?, slug=?, name=?, price=?, price_prefix=?,
-                        duration=?, description=?, img=?, sort_order=?, is_active=?
-                    WHERE id=?")
-                    ->execute([$cat_id, $slug, $name, $price, $prefix, $dur, $desc, $img, $sort, $active, $id]);
-                flash_set('ok', "Layanan diperbarui.");
             } catch (PDOException $e) {
                 flash_set('err', 'Error: ' . $e->getMessage());
             }
@@ -176,7 +126,7 @@ admin_head('Layanan', $active_page);
   <div class="tbl-wrap">
     <table>
       <thead>
-        <tr><th>Label</th><th>Slug</th><th>Urutan</th><th>Items</th><th>Aksi</th></tr>
+        <tr><th>Label</th><th>Slug</th><th>Items</th><th>Aksi</th></tr>
       </thead>
       <tbody>
         <?php if (empty($categories)): ?>
@@ -188,15 +138,12 @@ admin_head('Layanan', $active_page);
         <tr>
           <td><strong><?= he($cat['label']) ?></strong></td>
           <td><code style="font-size:.78rem;color:var(--muted);"><?= he($cat['slug']) ?></code></td>
-          <td><?= (int)$cat['sort_order'] ?></td>
           <td><?= $item_count ?></td>
           <td>
             <div style="display:flex;gap:.4rem;">
               <button class="btn btn-secondary btn-sm"
                 onclick="editCat(<?= htmlspecialchars(json_encode($cat)) ?>)">Edit</button>
-              <a class="btn btn-danger btn-sm"
-                href="layanan.php?action=del_cat&id=<?= $cat['id'] ?>&_token=<?= $token ?>"
-                onclick="return confirm('Hapus kategori ini? Semua item di dalamnya ikut terhapus!')">Hapus</a>
+              <button type="button" class="btn btn-danger btn-sm" onclick='confirmDelete("?action=del_cat&id=<?= $cat["id"] ?>&csrf_token=<?= $token ?>", "kategori")'>Hapus</button>
             </div>
           </td>
         </tr>
@@ -211,10 +158,10 @@ admin_head('Layanan', $active_page);
 <div class="card">
   <div class="card-header">
     <h2>Daftar Layanan</h2>
-    <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-item')">
+    <a class="btn btn-primary btn-sm" href="layanan-form.php">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
       Tambah Layanan
-    </button>
+    </a>
   </div>
   <div class="tbl-wrap">
     <table>
@@ -243,7 +190,7 @@ admin_head('Layanan', $active_page);
           <td><?= he($it['cat_label'] ?? '-') ?></td>
           <td>
             <?php if ($it['price']): ?>
-              <?= he($it['price_prefix'] ?: 'Mulai Rp') ?> <?= number_format($it['price'], 0, ',', '.') ?>
+              Rp <?= number_format($it['price'], 0, ',', '.') ?>
             <?php else: ?>
               <span style="color:var(--muted);">—</span>
             <?php endif; ?>
@@ -258,11 +205,8 @@ admin_head('Layanan', $active_page);
           </td>
           <td>
             <div style="display:flex;gap:.4rem;">
-              <button class="btn btn-secondary btn-sm"
-                onclick='editItem(<?= htmlspecialchars(json_encode($it)) ?>)'>Edit</button>
-              <a class="btn btn-danger btn-sm"
-                href="layanan.php?action=del_item&id=<?= $it['id'] ?>&_token=<?= $token ?>"
-                onclick="return confirm('Hapus layanan ini?')">Hapus</a>
+              <a class="btn btn-secondary btn-sm" href="layanan-form.php?id=<?= (int)$it['id'] ?>">Edit</a>
+              <button type="button" class="btn btn-danger btn-sm" onclick='confirmDelete("?action=del_item&id=<?= $it["id"] ?>&csrf_token=<?= $token ?>", "layanan")'>Hapus</button>
             </div>
           </td>
         </tr>
@@ -282,8 +226,8 @@ admin_head('Layanan', $active_page);
       <h3>Tambah Kategori</h3>
       <button class="modal-close" onclick="closeModal('modal-add-cat')">×</button>
     </div>
-    <form method="POST" action="layanan.php">
-      <input type="hidden" name="_token" value="<?= $token ?>">
+    <form method="POST" action="layanan.php" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="<?= $token ?>">
       <input type="hidden" name="action" value="add_cat">
       <div class="form-group">
         <label class="lbl">Label Kategori *</label>
@@ -293,10 +237,6 @@ admin_head('Layanan', $active_page);
         <label class="lbl">Slug (URL)</label>
         <input type="text" name="slug" id="slug-cat-add" placeholder="mis. hydrafacial">
         <p class="hint">Otomatis dari label. Hanya huruf kecil, angka, tanda-hubung.</p>
-      </div>
-      <div class="form-group">
-        <label class="lbl">Urutan tampil</label>
-        <input type="number" name="sort_order" value="0" min="0">
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-cat')">Batal</button>
@@ -313,8 +253,8 @@ admin_head('Layanan', $active_page);
       <h3>Edit Kategori</h3>
       <button class="modal-close" onclick="closeModal('modal-edit-cat')">×</button>
     </div>
-    <form method="POST" action="layanan.php">
-      <input type="hidden" name="_token" value="<?= $token ?>">
+    <form method="POST" action="layanan.php" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="<?= $token ?>">
       <input type="hidden" name="action" value="edit_cat">
       <input type="hidden" name="id" id="ec-id">
       <div class="form-group">
@@ -325,147 +265,8 @@ admin_head('Layanan', $active_page);
         <label class="lbl">Slug</label>
         <input type="text" name="slug" id="ec-slug">
       </div>
-      <div class="form-group">
-        <label class="lbl">Urutan</label>
-        <input type="number" name="sort_order" id="ec-sort" min="0">
-      </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-cat')">Batal</button>
-        <button type="submit" class="btn btn-primary">Simpan</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Add Item -->
-<div class="modal-overlay" id="modal-add-item">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>Tambah Layanan</h3>
-      <button class="modal-close" onclick="closeModal('modal-add-item')">×</button>
-    </div>
-    <form method="POST" action="layanan.php">
-      <input type="hidden" name="_token" value="<?= $token ?>">
-      <input type="hidden" name="action" value="add_item">
-      <div class="form-group">
-        <label class="lbl">Kategori *</label>
-        <select name="category_id" required>
-          <option value="">— pilih kategori —</option>
-          <?php foreach ($categories as $c): ?>
-          <option value="<?= $c['id'] ?>"><?= he($c['label']) ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="lbl">Nama Layanan *</label>
-        <input type="text" name="name" required placeholder="mis. Laser Rejuvenation" oninput="autoSlug(this,'slug-item-add')">
-      </div>
-      <div class="form-group">
-        <label class="lbl">Slug</label>
-        <input type="text" name="slug" id="slug-item-add" placeholder="laser-rejuvenation">
-      </div>
-      <div class="form-grid form-grid-2">
-        <div class="form-group">
-          <label class="lbl">Prefix Harga</label>
-          <input type="text" name="price_prefix" value="Mulai Rp" placeholder="Mulai Rp">
-        </div>
-        <div class="form-group">
-          <label class="lbl">Harga (angka)</label>
-          <input type="number" name="price" value="0" min="0">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="lbl">Durasi</label>
-        <input type="text" name="duration" placeholder="mis. 45 menit / sesi">
-      </div>
-      <div class="form-group">
-        <label class="lbl">Deskripsi</label>
-        <textarea name="description" rows="3" placeholder="Deskripsi singkat layanan…"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="lbl">URL Gambar</label>
-        <input type="text" name="img" placeholder="assets/images/treatment-xxx.jpg">
-        <p class="hint">Relatif dari root website, mis. <code>assets/images/treatment-laser.jpg</code></p>
-      </div>
-      <div class="form-group">
-        <label class="lbl">Urutan</label>
-        <input type="number" name="sort_order" value="0" min="0">
-      </div>
-      <div class="form-group">
-        <label class="toggle-wrap">
-          <span class="toggle"><input type="checkbox" name="is_active" checked><span class="slider"></span></span>
-          Aktif (tampil di website)
-        </label>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-item')">Batal</button>
-        <button type="submit" class="btn btn-primary">Simpan</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Edit Item -->
-<div class="modal-overlay" id="modal-edit-item">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>Edit Layanan</h3>
-      <button class="modal-close" onclick="closeModal('modal-edit-item')">×</button>
-    </div>
-    <form method="POST" action="layanan.php">
-      <input type="hidden" name="_token" value="<?= $token ?>">
-      <input type="hidden" name="action" value="edit_item">
-      <input type="hidden" name="id" id="ei-id">
-      <div class="form-group">
-        <label class="lbl">Kategori *</label>
-        <select name="category_id" id="ei-cat" required>
-          <?php foreach ($categories as $c): ?>
-          <option value="<?= $c['id'] ?>"><?= he($c['label']) ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="lbl">Nama Layanan *</label>
-        <input type="text" name="name" id="ei-name" required>
-      </div>
-      <div class="form-group">
-        <label class="lbl">Slug</label>
-        <input type="text" name="slug" id="ei-slug">
-      </div>
-      <div class="form-grid form-grid-2">
-        <div class="form-group">
-          <label class="lbl">Prefix Harga</label>
-          <input type="text" name="price_prefix" id="ei-prefix">
-        </div>
-        <div class="form-group">
-          <label class="lbl">Harga (angka)</label>
-          <input type="number" name="price" id="ei-price" min="0">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="lbl">Durasi</label>
-        <input type="text" name="duration" id="ei-duration">
-      </div>
-      <div class="form-group">
-        <label class="lbl">Deskripsi</label>
-        <textarea name="description" id="ei-desc" rows="3"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="lbl">URL Gambar</label>
-        <input type="text" name="img" id="ei-img">
-      </div>
-      <div class="form-group">
-        <label class="lbl">Urutan</label>
-        <input type="number" name="sort_order" id="ei-sort" min="0">
-      </div>
-      <div class="form-group">
-        <label class="toggle-wrap">
-          <span class="toggle"><input type="checkbox" name="is_active" id="ei-active"><span class="slider"></span></span>
-          Aktif (tampil di website)
-        </label>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-item')">Batal</button>
         <button type="submit" class="btn btn-primary">Simpan</button>
       </div>
     </form>
@@ -501,24 +302,9 @@ function editCat(cat) {
   document.getElementById('ec-id').value    = cat.id;
   document.getElementById('ec-label').value = cat.label;
   document.getElementById('ec-slug').value  = cat.slug;
-  document.getElementById('ec-sort').value  = cat.sort_order;
   openModal('modal-edit-cat');
 }
 
-function editItem(it) {
-  document.getElementById('ei-id').value       = it.id;
-  document.getElementById('ei-cat').value      = it.category_id;
-  document.getElementById('ei-name').value     = it.name;
-  document.getElementById('ei-slug').value     = it.slug;
-  document.getElementById('ei-prefix').value   = it.price_prefix || 'Mulai Rp';
-  document.getElementById('ei-price').value    = it.price || 0;
-  document.getElementById('ei-duration').value = it.duration || '';
-  document.getElementById('ei-desc').value     = it.description || '';
-  document.getElementById('ei-img').value      = it.img || '';
-  document.getElementById('ei-sort').value     = it.sort_order || 0;
-  document.getElementById('ei-active').checked = it.is_active == 1;
-  openModal('modal-edit-item');
-}
 </script>
 
 <?php admin_foot(); ?>

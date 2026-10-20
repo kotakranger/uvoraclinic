@@ -8,6 +8,10 @@
  */
 
 if (session_status() === PHP_SESSION_NONE) {
+    // Use system temp dir to avoid MAMP session path issues
+    if (!is_writable(ini_get('session.save_path'))) {
+        session_save_path(sys_get_temp_dir());
+    }
     session_start([
         'cookie_httponly' => true,
         'cookie_samesite' => 'Strict',
@@ -28,13 +32,14 @@ function csrf_field(): string
 }
 
 /**
- * Verify CSRF token from POST body or X-CSRF-Token header.
+ * Verify CSRF token from POST body, GET param, or X-CSRF-Token header.
  * Returns false (does NOT throw) so callers can send JSON errors.
  */
 function csrf_verify(): bool
 {
     $token = $_POST['csrf_token']
-        ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+        ?? ($_GET['csrf_token']
+        ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''));
 
     return hash_equals(csrf_token(), (string) $token);
 }

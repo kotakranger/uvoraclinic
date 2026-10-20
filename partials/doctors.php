@@ -1,3 +1,4 @@
+<?php if (empty($doctors)) return; ?>
 <section id="dokter" class="uv-container px-6 py-24 md:px-12 md:py-32">
   <div class="mb-14 text-center">
     <span class="text-xs uppercase tracking-[0.28em] text-[#ab8f2c] font-medium">Tim Medis Kami</span>
@@ -9,7 +10,7 @@
         <div class="uv-doc-card overflow-hidden rounded-3xl border border-[#E6DFD1] bg-white" style="box-shadow:0 14px 40px rgba(0,0,0,.06)">
           <!-- Photo -->
           <div class="img-hover-wrap relative aspect-[3/4] overflow-hidden">
-            <img alt="<?= e($d['name']) ?>" class="h-full w-full object-cover" src="<?= e($d['img']) ?>" loading="lazy">
+            <?php if (!empty($d['img'])): ?><img alt="<?= e($d['name']) ?>" class="h-full w-full object-cover" src="<?= e($d['img']) ?>" loading="lazy"><?php else: ?><div class="h-full w-full" style="background:#EFE8DA"></div><?php endif; ?>
             <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/30 to-transparent"></div>
           </div>
           <!-- Info -->

@@ -155,6 +155,10 @@ function admin_head(string $title, string $active_page = 'consultations'): void 
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 14.25 15 9.75M9 10h.01M15 14h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
     Promo
   </a>
+  <a href="hasil.php" class="nav-item <?= $active_page === 'hasil' ? 'active' : '' ?>">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 5h8v14H3zM13 5h8v14h-8z"/></svg>
+    Hasil (Before/After)
+  </a>
   <a href="content.php" class="nav-item <?= $active_page === 'content' ? 'active' : '' ?>">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
     Dokter & Konten
@@ -184,6 +188,41 @@ function admin_head(string $title, string $active_page = 'consultations'): void 
 function admin_foot(): void { ?>
   </div>
 </div>
+
+<!-- ── Shared Confirm-Delete Modal ─────────────────────────────────── -->
+<div class="modal-overlay" id="modal-confirm-delete" style="z-index:200">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h3 id="modal-confirm-title">Hapus item ini?</h3>
+      <button class="modal-close" onclick="closeConfirm()">×</button>
+    </div>
+    <p id="modal-confirm-body" style="font-size:.85rem;color:var(--muted);margin-bottom:1.25rem">Tindakan ini tidak dapat dibatalkan.</p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeConfirm()">Batal</button>
+      <a id="modal-confirm-href" href="#" class="btn btn-danger">Ya, Hapus</a>
+    </div>
+  </div>
+</div>
+<script>
+function confirmDelete(qs, label) {
+  // qs may be a full URL or just "?action=..." — resolve to absolute path
+  var href = qs.startsWith('?') ? window.location.pathname + qs : qs;
+  var m = document.getElementById('modal-confirm-delete');
+  document.getElementById('modal-confirm-title').textContent = label ? ('Hapus ' + label + '?') : 'Hapus item ini?';
+  document.getElementById('modal-confirm-body').textContent  = 'Tindakan ini tidak dapat dibatalkan.';
+  document.getElementById('modal-confirm-href').href = href;
+  m.classList.add('open');
+}
+function closeConfirm() {
+  document.getElementById('modal-confirm-delete').classList.remove('open');
+}
+document.getElementById('modal-confirm-delete').addEventListener('click', function(e) {
+  if (e.target === this) closeConfirm();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeConfirm();
+});
+</script>
 </body>
 </html>
 <?php }

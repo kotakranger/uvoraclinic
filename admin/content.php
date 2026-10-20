@@ -8,6 +8,7 @@
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/csrf.php';
+require_once __DIR__ . '/../includes/uploader.php';
 require_once __DIR__ . '/../includes/admin_layout.php';
 
 admin_require_login();
@@ -25,11 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
     if ($action === 'add_doctor') {
         $name     = trim($_POST['name'] ?? '');
         $role     = trim($_POST['role'] ?? '');
-        $img      = trim($_POST['img'] ?? '');
+        try { $img = handle_image_field('img', 'doctors', $_POST['img'] ?? ''); }
+        catch (RuntimeException $e) { flash_set('err', $e->getMessage()); header('Location: content.php?tab=doctors'); exit; }
         $schedule = trim($_POST['schedule'] ?? '');
         $exp_raw  = trim($_POST['expertise'] ?? '');
         $exp_json = $exp_raw ? json_encode(array_values(array_filter(array_map('trim', explode("\n", $exp_raw))))) : null;
-        $sort     = (int)($_POST['sort_order'] ?? 0);
+        $sort     = (int)$pdo->query("SELECT COALESCE(MAX(sort_order),-1)+1 FROM doctors")->fetchColumn();
         $active   = isset($_POST['is_active']) ? 1 : 0;
         if ($name) {
             $pdo->prepare("INSERT INTO doctors (name, role, img, schedule, expertise_json, sort_order, is_active) VALUES (?,?,?,?,?,?,?)")
@@ -43,15 +45,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
         $id       = (int)($_POST['id'] ?? 0);
         $name     = trim($_POST['name'] ?? '');
         $role     = trim($_POST['role'] ?? '');
-        $img      = trim($_POST['img'] ?? '');
+        try { $img = handle_image_field('img', 'doctors', $_POST['img'] ?? ''); }
+        catch (RuntimeException $e) { flash_set('err', $e->getMessage()); header('Location: content.php?tab=doctors'); exit; }
         $schedule = trim($_POST['schedule'] ?? '');
         $exp_raw  = trim($_POST['expertise'] ?? '');
         $exp_json = $exp_raw ? json_encode(array_values(array_filter(array_map('trim', explode("\n", $exp_raw))))) : null;
-        $sort     = (int)($_POST['sort_order'] ?? 0);
         $active   = isset($_POST['is_active']) ? 1 : 0;
         if ($id && $name) {
-            $pdo->prepare("UPDATE doctors SET name=?, role=?, img=?, schedule=?, expertise_json=?, sort_order=?, is_active=? WHERE id=?")
-                ->execute([$name, $role, $img, $schedule, $exp_json, $sort, $active, $id]);
+            $pdo->prepare("UPDATE doctors SET name=?, role=?, img=?, schedule=?, expertise_json=?, is_active=? WHERE id=?")
+                ->execute([$name, $role, $img, $schedule, $exp_json, $active, $id]);
             flash_set('ok', 'Dokter diperbarui.');
         }
         header("Location: content.php?tab=doctors"); exit;
@@ -62,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
         $quote  = trim($_POST['quote'] ?? '');
         $author = trim($_POST['author'] ?? '');
         $city   = trim($_POST['city'] ?? '');
-        $sort   = (int)($_POST['sort_order'] ?? 0);
+        $sort   = (int)$pdo->query("SELECT COALESCE(MAX(sort_order),-1)+1 FROM testimonials")->fetchColumn();
         $active = isset($_POST['is_active']) ? 1 : 0;
         if ($quote && $author) {
             $pdo->prepare("INSERT INTO testimonials (quote, author, city, sort_order, is_active) VALUES (?,?,?,?,?)")
@@ -77,11 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
         $quote  = trim($_POST['quote'] ?? '');
         $author = trim($_POST['author'] ?? '');
         $city   = trim($_POST['city'] ?? '');
-        $sort   = (int)($_POST['sort_order'] ?? 0);
         $active = isset($_POST['is_active']) ? 1 : 0;
         if ($id) {
-            $pdo->prepare("UPDATE testimonials SET quote=?, author=?, city=?, sort_order=?, is_active=? WHERE id=?")
-                ->execute([$quote, $author, $city, $sort, $active, $id]);
+            $pdo->prepare("UPDATE testimonials SET quote=?, author=?, city=?, is_active=? WHERE id=?")
+                ->execute([$quote, $author, $city, $active, $id]);
             flash_set('ok', 'Testimoni diperbarui.');
         }
         header("Location: content.php?tab=testimonials"); exit;
@@ -90,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
     // ── REELS ─────────────────────────────────────────────────────────────
     if ($action === 'add_reel') {
         $url    = trim($_POST['embed_url'] ?? '');
-        $sort   = (int)($_POST['sort_order'] ?? 0);
+        $sort   = (int)$pdo->query("SELECT COALESCE(MAX(sort_order),-1)+1 FROM content_reels")->fetchColumn();
         $active = isset($_POST['is_active']) ? 1 : 0;
         if ($url) {
             $pdo->prepare("INSERT INTO content_reels (embed_url, sort_order, is_active) VALUES (?,?,?)")
@@ -103,11 +104,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
     if ($action === 'edit_reel') {
         $id     = (int)($_POST['id'] ?? 0);
         $url    = trim($_POST['embed_url'] ?? '');
-        $sort   = (int)($_POST['sort_order'] ?? 0);
         $active = isset($_POST['is_active']) ? 1 : 0;
         if ($id) {
-            $pdo->prepare("UPDATE content_reels SET embed_url=?, sort_order=?, is_active=? WHERE id=?")
-                ->execute([$url, $sort, $active, $id]);
+            $pdo->prepare("UPDATE content_reels SET embed_url=?, is_active=? WHERE id=?")
+                ->execute([$url, $active, $id]);
             flash_set('ok', 'Reel diperbarui.');
         }
         header("Location: content.php?tab=reels"); exit;
@@ -202,9 +202,7 @@ admin_head('Dokter & Konten', $active_page);
           <td>
             <div style="display:flex;gap:.4rem;">
               <button class="btn btn-secondary btn-sm" onclick='editDoctor(<?= htmlspecialchars(json_encode($d)) ?>)'>Edit</button>
-              <a class="btn btn-danger btn-sm"
-                href="content.php?tab=doctors&action=del_doctor&id=<?= $d['id'] ?>&_token=<?= $token ?>"
-                onclick="return confirm('Hapus dokter ini?')">Hapus</a>
+              <button type="button" class="btn btn-danger btn-sm" onclick='confirmDelete("?tab=doctors&action=del_doctor&id=<?= $d["id"] ?>&csrf_token=<?= $token ?>", "dokter")'>Hapus</button>
             </div>
           </td>
         </tr>
@@ -219,8 +217,8 @@ admin_head('Dokter & Konten', $active_page);
 <div class="modal-overlay" id="modal-add-doctor">
   <div class="modal">
     <div class="modal-header"><h3>Tambah Dokter</h3><button class="modal-close" onclick="closeModal('modal-add-doctor')">×</button></div>
-    <form method="POST" action="content.php?tab=doctors">
-      <input type="hidden" name="_token" value="<?= $token ?>">
+    <form method="POST" action="content.php?tab=doctors" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="<?= $token ?>">
       <input type="hidden" name="action" value="add_doctor">
       <?php include __DIR__ . '/partials/_doctor_form.php'; ?>
       <div class="modal-footer">
@@ -235,8 +233,8 @@ admin_head('Dokter & Konten', $active_page);
 <div class="modal-overlay" id="modal-edit-doctor">
   <div class="modal">
     <div class="modal-header"><h3>Edit Dokter</h3><button class="modal-close" onclick="closeModal('modal-edit-doctor')">×</button></div>
-    <form method="POST" action="content.php?tab=doctors">
-      <input type="hidden" name="_token" value="<?= $token ?>">
+    <form method="POST" action="content.php?tab=doctors" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="<?= $token ?>">
       <input type="hidden" name="action" value="edit_doctor">
       <input type="hidden" name="id" id="ed-id">
       <?php include __DIR__ . '/partials/_doctor_form.php'; ?>
@@ -286,9 +284,7 @@ admin_head('Dokter & Konten', $active_page);
           <td>
             <div style="display:flex;gap:.4rem;">
               <button class="btn btn-secondary btn-sm" onclick='editTesti(<?= htmlspecialchars(json_encode($t)) ?>)'>Edit</button>
-              <a class="btn btn-danger btn-sm"
-                href="content.php?tab=testimonials&action=del_testimonial&id=<?= $t['id'] ?>&_token=<?= $token ?>"
-                onclick="return confirm('Hapus testimoni ini?')">Hapus</a>
+              <button type="button" class="btn btn-danger btn-sm" onclick='confirmDelete("?tab=testimonials&action=del_testimonial&id=<?= $t["id"] ?>&csrf_token=<?= $token ?>", "testimoni")'>Hapus</button>
             </div>
           </td>
         </tr>
@@ -304,7 +300,7 @@ admin_head('Dokter & Konten', $active_page);
   <div class="modal">
     <div class="modal-header"><h3>Tambah Testimoni</h3><button class="modal-close" onclick="closeModal('modal-add-testi')">×</button></div>
     <form method="POST" action="content.php?tab=testimonials">
-      <input type="hidden" name="_token" value="<?= $token ?>">
+      <input type="hidden" name="csrf_token" value="<?= $token ?>">
       <input type="hidden" name="action" value="add_testimonial">
       <?php include __DIR__ . '/partials/_testi_form.php'; ?>
       <div class="modal-footer">
@@ -320,7 +316,7 @@ admin_head('Dokter & Konten', $active_page);
   <div class="modal">
     <div class="modal-header"><h3>Edit Testimoni</h3><button class="modal-close" onclick="closeModal('modal-edit-testi')">×</button></div>
     <form method="POST" action="content.php?tab=testimonials">
-      <input type="hidden" name="_token" value="<?= $token ?>">
+      <input type="hidden" name="csrf_token" value="<?= $token ?>">
       <input type="hidden" name="action" value="edit_testimonial">
       <input type="hidden" name="id" id="et-id">
       <?php include __DIR__ . '/partials/_testi_form.php'; ?>
@@ -348,7 +344,7 @@ admin_head('Dokter & Konten', $active_page);
 <div class="card">
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>#</th><th>Embed URL</th><th>Urutan</th><th>Status</th><th>Aksi</th></tr></thead>
+      <thead><tr><th>#</th><th>Embed URL</th><th>Status</th><th>Aksi</th></tr></thead>
       <tbody>
       <?php if (empty($reels)): ?>
         <tr><td colspan="5" class="empty-state">Belum ada reel.</td></tr>
@@ -361,7 +357,6 @@ admin_head('Dokter & Konten', $active_page);
               <?= he(mb_substr($r['embed_url'], 0, 60)) . (mb_strlen($r['embed_url']) > 60 ? '…' : '') ?>
             </span>
           </td>
-          <td><?= (int)$r['sort_order'] ?></td>
           <td>
             <a href="content.php?tab=reels&action=toggle_reel&id=<?= $r['id'] ?>">
               <span class="tag <?= $r['is_active'] ? 'tag-active' : 'tag-inactive' ?>"><?= $r['is_active'] ? 'Aktif' : 'Nonaktif' ?></span>
@@ -370,9 +365,7 @@ admin_head('Dokter & Konten', $active_page);
           <td>
             <div style="display:flex;gap:.4rem;">
               <button class="btn btn-secondary btn-sm" onclick='editReel(<?= htmlspecialchars(json_encode($r)) ?>)'>Edit</button>
-              <a class="btn btn-danger btn-sm"
-                href="content.php?tab=reels&action=del_reel&id=<?= $r['id'] ?>&_token=<?= $token ?>"
-                onclick="return confirm('Hapus reel ini?')">Hapus</a>
+              <button type="button" class="btn btn-danger btn-sm" onclick='confirmDelete("?tab=reels&action=del_reel&id=<?= $r["id"] ?>&csrf_token=<?= $token ?>", "reel")'>Hapus</button>
             </div>
           </td>
         </tr>
@@ -388,16 +381,18 @@ admin_head('Dokter & Konten', $active_page);
   <div class="modal">
     <div class="modal-header"><h3>Tambah Content Reel</h3><button class="modal-close" onclick="closeModal('modal-add-reel')">×</button></div>
     <form method="POST" action="content.php?tab=reels">
-      <input type="hidden" name="_token" value="<?= $token ?>">
+      <input type="hidden" name="csrf_token" value="<?= $token ?>">
       <input type="hidden" name="action" value="add_reel">
       <div class="form-group">
-        <label class="lbl">Embed URL (TikTok / Instagram / YouTube) *</label>
-        <input type="url" name="embed_url" required placeholder="https://www.tiktok.com/embed/v2/…">
-        <p class="hint">Gunakan URL embed bukan URL share biasa.</p>
-      </div>
-      <div class="form-group">
-        <label class="lbl">Urutan</label>
-        <input type="number" name="sort_order" value="0" min="0">
+        <label class="lbl">URL Video *</label>
+        <input type="url" name="embed_url" required placeholder="https://www.tiktok.com/@account/video/123 atau https://www.instagram.com/p/ABC">
+        <div class="hint" style="line-height:1.7;margin-top:.4rem">
+          Format URL yang didukung:<br>
+          🎵 <strong>TikTok</strong>: <code>https://www.tiktok.com/@namaakun/video/VIDEO_ID</code><br>
+          📸 <strong>Instagram</strong>: <code>https://www.instagram.com/p/SHORTCODE/</code> atau <code>/reel/SHORTCODE/</code><br>
+          ▶️ <strong>YouTube</strong>: <code>https://www.youtube.com/watch?v=VIDEO_ID</code> atau <code>/shorts/VIDEO_ID</code><br>
+          <em>Gunakan URL biasa — sistem otomatis mendeteksi platform.</em>
+        </div>
       </div>
       <div class="form-group">
         <label class="toggle-wrap">
@@ -418,16 +413,17 @@ admin_head('Dokter & Konten', $active_page);
   <div class="modal">
     <div class="modal-header"><h3>Edit Reel</h3><button class="modal-close" onclick="closeModal('modal-edit-reel')">×</button></div>
     <form method="POST" action="content.php?tab=reels">
-      <input type="hidden" name="_token" value="<?= $token ?>">
+      <input type="hidden" name="csrf_token" value="<?= $token ?>">
       <input type="hidden" name="action" value="edit_reel">
       <input type="hidden" name="id" id="er-id">
       <div class="form-group">
-        <label class="lbl">Embed URL *</label>
+        <label class="lbl">URL Video *</label>
         <input type="url" name="embed_url" id="er-url" required>
-      </div>
-      <div class="form-group">
-        <label class="lbl">Urutan</label>
-        <input type="number" name="sort_order" id="er-sort" min="0">
+        <div class="hint" style="line-height:1.7;margin-top:.4rem">
+          🎵 TikTok: <code>https://www.tiktok.com/@akun/video/ID</code><br>
+          📸 Instagram: <code>https://www.instagram.com/p/SHORTCODE/</code><br>
+          ▶️ YouTube: <code>https://www.youtube.com/watch?v=ID</code>
+        </div>
       </div>
       <div class="form-group">
         <label class="toggle-wrap">
@@ -461,11 +457,11 @@ function editDoctor(d) {
   m.querySelector('[name=name]').value      = d.name || '';
   m.querySelector('[name=role]').value      = d.role || '';
   m.querySelector('[name=img]').value       = d.img || '';
+  uvImgSync(m.querySelector('[name=img]'));
   m.querySelector('[name=schedule]').value  = d.schedule || '';
   var exp = [];
   try { exp = JSON.parse(d.expertise_json || '[]'); } catch(e){}
   m.querySelector('[name=expertise]').value = exp.join('\n');
-  m.querySelector('[name=sort_order]').value = d.sort_order || 0;
   m.querySelector('[name=is_active]').checked = d.is_active == 1;
   openModal('modal-edit-doctor');
 }
@@ -476,7 +472,6 @@ function editTesti(t) {
   m.querySelector('[name=quote]').value      = t.quote || '';
   m.querySelector('[name=author]').value     = t.author || '';
   m.querySelector('[name=city]').value       = t.city || '';
-  m.querySelector('[name=sort_order]').value = t.sort_order || 0;
   m.querySelector('[name=is_active]').checked = t.is_active == 1;
   openModal('modal-edit-testi');
 }
@@ -484,7 +479,6 @@ function editTesti(t) {
 function editReel(r) {
   document.getElementById('er-id').value   = r.id;
   document.getElementById('er-url').value  = r.embed_url || '';
-  document.getElementById('er-sort').value = r.sort_order || 0;
   document.getElementById('er-active').checked = r.is_active == 1;
   openModal('modal-edit-reel');
 }

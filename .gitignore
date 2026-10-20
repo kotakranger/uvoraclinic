@@ -1,10 +1,20 @@
-# Referensi asli dari Emergent (tidak dipakai di website)
-Emergent _ Fullstack App.html
-Emergent _ Fullstack App_files/
+# Kredensial database — JANGAN di-commit
+includes/db_config.php
 
-# Tool lokal
+# Foto upload dari admin (folder tetap ada, file upload diabaikan)
+assets/uploads/**
+!assets/uploads/
+!assets/uploads/**/
+!assets/uploads/**/.gitkeep
+!assets/uploads/.htaccess
+
+# Database lokal lama (SQLite, sudah tidak dipakai)
+*.sqlite
+
+# Tool lokal / bahan compile CSS
 .claude/
 tailwindcss*.exe
+tailwind/
 
 # OS / editor
 .DS_Store
@@ -12,16 +22,3 @@ Thumbs.db
 desktop.ini
 .vscode/
 .idea/
-
-# Bahan compile CSS (hanya lokal, tidak dipakai website)
-tailwind/
-
-# Database files (SQLite — deprecated, moved to MySQL)
-*.sqlite
-data/*.sqlite
-
-# Database credentials — NEVER commit this file
-includes/db_config.php
-
-# User-uploaded media files (managed via admin panel)
-assets/uploads/

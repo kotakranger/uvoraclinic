@@ -1,3 +1,4 @@
+<?php if (empty($concerns)) return; ?>
 <?php $first = $concerns[0]; ?>
 <section id="hasil" class="bg-white py-24 md:py-32">
   <div class="uv-container px-6 md:px-12">

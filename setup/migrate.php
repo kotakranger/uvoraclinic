@@ -1,12 +1,11 @@
 <?php
 /**
- * migrate.php — One-time schema runner for Uvora Clinic MySQL database.
+ * setup/migrate.php — One-time schema runner for Uvora Clinic MySQL database.
  *
- * Run via browser: http://localhost:8000/migrate.php
- * Or via CLI:      php migrate.php
+ * Run via browser: http://localhost:8000/setup/migrate.php
+ * Or via CLI:      php setup/migrate.php
  *
- * IMPORTANT: Delete or protect this file after running in production!
- * Add to .htaccess:  <Files "migrate.php"> Deny from all </Files>
+ * IMPORTANT: HAPUS folder setup/ dari hosting setelah selesai dijalankan.
  *
  * This script is IDEMPOTENT — safe to run multiple times.
  * It uses CREATE TABLE IF NOT EXISTS so it won't destroy existing data.
@@ -44,7 +43,8 @@ if (!$is_cli && ($_GET['run'] ?? '') !== '1') {
     exit;
 }
 
-require_once __DIR__ . '/includes/db.php';
+require_once dirname(__DIR__) . '/includes/db.php';
+require_once dirname(__DIR__) . '/includes/data.php';
 
 try {
     $pdo = db();
@@ -162,17 +162,6 @@ $tables = [
         PRIMARY KEY (id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
-    // ── Media library ─────────────────────────────────────────────────────
-    'media' => "CREATE TABLE IF NOT EXISTS media (
-        id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
-        filename      VARCHAR(255) NOT NULL UNIQUE,
-        original_name VARCHAR(255) NOT NULL,
-        mime_type     VARCHAR(80)  NOT NULL,
-        size_bytes    INT UNSIGNED NOT NULL DEFAULT 0,
-        created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (id)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
-
 ];
 
 // ─── Run each table creation ───────────────────────────────────────────────
@@ -186,6 +175,11 @@ foreach ($tables as $name => $sql) {
         $all_ok = false;
     }
 }
+
+// ─── Kolom detail layanan + tabel hasil (before/after) ─────────────────────
+ensure_layanan_schema();
+ensure_results_schema();
+log_msg('✓ Kolom detail layanan & tabel `results` siap', 'ok');
 
 // ─── Clean up old rate_limits rows (older than 24h) ───────────────────────
 try {

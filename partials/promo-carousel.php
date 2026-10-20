@@ -1,3 +1,4 @@
+<?php if (empty($promotions)) return; ?>
 <?php // Promo banner carousel — auto-scrolling landscape banners ?>
 <section class="uv-promo-band" data-promo-carousel>
   <div class="uv-container px-6 md:px-12">

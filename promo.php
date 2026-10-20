@@ -2,6 +2,11 @@
 require __DIR__ . '/includes/config.php';
 require __DIR__ . '/includes/catalog.php';
 require __DIR__ . '/includes/icons.php';
+require __DIR__ . '/includes/db.php';
+require __DIR__ . '/includes/data.php';
+
+// Override with DB data (fallback to config.php when empty)
+$promotions = load_promotions($promotions);
 
 $page_title = 'Promo · ' . $site['name'];
 $page_desc  = 'Promo dan penawaran terbatas dari Uvora Clinic. Nikmati diskon, paket hemat, dan program referral eksklusif.';
@@ -20,6 +25,9 @@ include __DIR__ . '/partials/page-open.php';
 
       <!-- Promo listing -->
       <section class="uv-container" style="padding:0 1.5rem 5rem">
+        <?php if (!$promotions): ?>
+          <p style="text-align:center;color:#6B6459;padding:3rem 0">Belum ada promo saat ini. Hubungi kami untuk penawaran terbaru.</p>
+        <?php endif; ?>
         <div class="promo-grid">
           <?php foreach ($promotions as $pi => $p): ?>
             <a href="promo-detail.php?slug=<?= e($p['slug']) ?>" class="promo-card" data-reveal style="--d:<?= $pi * 0.08 ?>s">

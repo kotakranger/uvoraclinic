@@ -201,8 +201,20 @@ foreach ($treatment_categories as $cid => $cat) {
             if ($item['price'] < $pt['max']) { $tier = $ti; break; }
         }
         $m    = $treatment_meta[$item['name']] ?? ['facial', '-', ''];
-        $slug = slugify($item['name']);
-        $gallery = treatment_gallery($slug, $m[3] ?? $treatment_image[$m[0]]);
+        $slug = !empty($item['slug']) ? $item['slug'] : slugify($item['name']);
+        $ty   = $treatment_types[$m[0]] ?? $treatment_types['facial'];
+        $lines = function ($v) { return array_values(array_filter(array_map('trim', preg_split('/\R/', (string) $v)))); };
+        $pick  = function ($v, $def) use ($lines) { $l = $lines($v); return $l ?: $def; };
+        $steps = [];
+        foreach ($lines($item['steps'] ?? '') as $ln) {
+            $p = array_map('trim', explode('|', $ln, 2));
+            $steps[] = [$p[0], $p[1] ?? ''];
+        }
+        // Foto dari admin (sampul + 2 foto galeri / URL video) menggantikan galeri bawaan.
+        $dbImgs = array_values(array_filter([$item['img'] ?? '', $item['img2'] ?? '', $item['img3'] ?? ''], 'strlen'));
+        $gallery = $dbImgs
+            ? array_map('media_entry', $dbImgs)
+            : treatment_gallery($slug, $m[3] ?? $treatment_image[$m[0]]);
         $cover = $gallery[0]['kind'] === 'image' ? $gallery[0]['src'] : ($gallery[0]['thumb'] ?: ($m[3] ?? $treatment_image[$m[0]]));
         foreach ($gallery as $g) {
             if ($g['kind'] === 'image') { $cover = $g['src']; break; }
@@ -211,13 +223,19 @@ foreach ($treatment_categories as $cid => $cat) {
             'slug'      => $slug,
             'name'      => $item['name'],
             'price'     => $item['price'],
-            'prefix'    => $item['prefix'] ?? '',
+            'prefix'    => '',
             'cat'       => $cid,
             'tier'      => $tier,
             'cat_label' => $cat['label'],
             'type'      => $m[0],
-            'dur'       => $m[1],
-            'desc'      => $m[2],
+            'dur'       => ($item['dur'] ?? '') !== '' ? $item['dur'] : $m[1],
+            'desc'      => ($item['desc'] ?? '') !== '' ? $item['desc'] : $m[2],
+            'how_title' => trim($item['how_title'] ?? '') !== '' ? trim($item['how_title']) : $ty['how_title'],
+            'how_text'  => trim($item['how_text'] ?? '') !== '' ? trim($item['how_text']) : $ty['how_text'],
+            'features'  => $pick($item['features'] ?? '', $ty['features']),
+            'suitable'  => $pick($item['suitable'] ?? '', $ty['suitable']),
+            'notes'     => $pick($item['notes'] ?? '', $ty['notes']),
+            'steps'     => $steps ?: $treatment_steps,
             'img'       => $cover,
             'gallery'   => $gallery,
         ];
@@ -237,5 +255,5 @@ function find_treatment($slug)
 
 function treatment_price($t)
 {
-    return ($t['prefix'] !== '' ? $t['prefix'] . ' ' : '') . rupiah($t['price']);
+    return rupiah($t['price']);
 }

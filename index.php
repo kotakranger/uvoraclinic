@@ -2,6 +2,15 @@
 require __DIR__ . '/includes/config.php';
 require __DIR__ . '/includes/icons.php';
 require __DIR__ . '/includes/csrf.php';
+require __DIR__ . '/includes/db.php';
+require __DIR__ . '/includes/data.php';
+
+// Override dynamic data from DB (falls back to config.php when DB is empty)
+$doctors      = load_doctors($doctors);
+$testimonials = load_testimonials($testimonials);
+$promotions   = load_promotions($promotions);
+$content_reels = load_content_reels($content_reels);
+$concerns      = load_results();
 
 // Cache-busting: berubah otomatis setiap kali CSS/JS di-upload ulang.
 $asset_version = max(

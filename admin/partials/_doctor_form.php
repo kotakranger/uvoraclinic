@@ -7,11 +7,7 @@
   <label class="lbl">Jabatan / Spesialisasi</label>
   <input type="text" name="role" placeholder="Dermatolog & Dokter Estetika">
 </div>
-<div class="form-group">
-  <label class="lbl">URL Foto</label>
-  <input type="text" name="img" placeholder="assets/images/doctor-xxx.jpg">
-  <p class="hint">Relatif dari root, mis. <code>assets/images/doctor-sari.jpg</code></p>
-</div>
+<?php image_field('img', 'Foto Dokter'); ?>
 <div class="form-group">
   <label class="lbl">Jadwal Praktik</label>
   <input type="text" name="schedule" placeholder="Senin – Jumat, 10.00–17.00">
@@ -23,10 +19,6 @@ Laser Rejuvenation
 Anti-Aging Therapy
 Acne Treatment"></textarea>
   <p class="hint">Satu baris = satu item keahlian.</p>
-</div>
-<div class="form-group">
-  <label class="lbl">Urutan</label>
-  <input type="number" name="sort_order" value="0" min="0">
 </div>
 <div class="form-group">
   <label class="toggle-wrap">

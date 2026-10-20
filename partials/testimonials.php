@@ -1,10 +1,18 @@
+<?php if (empty($testimonials)) return; ?>
 <section id="testimoni" class="bg-[#f7f2ea] py-24 md:py-32">
   <div class="uv-container px-6 md:px-12">
+    <?php if (!empty($review_summary)): ?>
     <div class="mb-14 flex flex-col items-center text-center">
       <span class="text-[#ab8f2c] tracking-widest text-2xl" aria-label="Rating 5 dari 5">★★★★★</span>
       <div class="font-serif-display mt-3 text-5xl"><?= e($review_summary['rating']) ?></div>
       <p class="mt-1 text-sm text-[#6B6459]">Berdasarkan <?= e($review_summary['count']) ?> ulasan Google</p>
     </div>
+    <?php else: ?>
+    <div class="mb-14 text-center">
+      <span class="text-xs uppercase tracking-[0.28em] text-[#ab8f2c] font-medium">Testimoni</span>
+      <h2 class="font-serif-display mt-4 text-4xl tracking-tight md:text-5xl">Kata Mereka</h2>
+    </div>
+    <?php endif; ?>
     <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
       <?php foreach ($testimonials as $i => $t): ?>
         <div data-reveal style="--d:<?= $i * 0.1 ?>s">

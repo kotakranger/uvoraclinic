@@ -1,5 +1,12 @@
 <?php
 require __DIR__ . '/includes/config.php';
+require __DIR__ . '/includes/db.php';
+require __DIR__ . '/includes/data.php';
+
+// Override treatment categories from DB (falls back to config.php when empty)
+$treatment_categories = load_treatment_categories($treatment_categories);
+$doctors = load_doctors($doctors);
+
 require __DIR__ . '/includes/catalog.php';
 require __DIR__ . '/includes/icons.php';
 
@@ -76,7 +83,7 @@ include __DIR__ . '/partials/page-open.php';
             <h1 class="font-serif-display pw-d-title"><?= e($t['name']) ?></h1>
             <p class="pw-d-desc"><?= e($t['desc']) ?></p>
             <div class="pw-d-meta">
-              <div><small><?= $t['prefix'] !== '' ? e($t['prefix']) : 'Harga' ?></small><strong><?= e(rupiah($t['price'])) ?></strong></div>
+              <div><small>Harga</small><strong><?= e(rupiah($t['price'])) ?></strong></div>
               <div><small>Durasi</small><strong><?= e($t['dur']) ?></strong></div>
             </div>
             <div class="pw-hero-btns">
@@ -93,11 +100,11 @@ include __DIR__ . '/partials/page-open.php';
         <div class="uv-container pw-how">
           <div>
             <span class="pw-eyebrow">Cara Kerja</span>
-            <h2 class="font-serif-display pw-h2"><?= e($type['how_title']) ?></h2>
-            <p class="pw-p"><?= e($type['how_text']) ?></p>
+            <h2 class="font-serif-display pw-h2"><?= e($t['how_title']) ?></h2>
+            <p class="pw-p"><?= e($t['how_text']) ?></p>
           </div>
           <div class="pw-how-grid">
-            <?php foreach ($type['features'] as $f): ?>
+            <?php foreach ($t['features'] as $f): ?>
               <div class="pw-how-item"><?= icon('sparkles', 16, 'text-[#ab8f2c]') ?><span><?= e($f) ?></span></div>
             <?php endforeach; ?>
           </div>
@@ -111,14 +118,14 @@ include __DIR__ . '/partials/page-open.php';
             <span class="pw-eyebrow">Cocok Untuk</span>
             <h2 class="font-serif-display pw-h2">Kondisi yang Dapat Dibantu</h2>
             <ul class="pw-list">
-              <?php foreach ($type['suitable'] as $s): ?><li><?= icon('badge-check', 18, 'text-[#ab8f2c]') ?><?= e($s) ?></li><?php endforeach; ?>
+              <?php foreach ($t['suitable'] as $s): ?><li><?= icon('badge-check', 18, 'text-[#ab8f2c]') ?><?= e($s) ?></li><?php endforeach; ?>
             </ul>
           </div>
           <div>
             <span class="pw-eyebrow">Perlu Diketahui</span>
             <h2 class="font-serif-display pw-h2">Catatan Perawatan</h2>
             <ul class="pw-list">
-              <?php foreach ($type['notes'] as $n): ?><li><?= icon('shield-check', 18, 'text-[#ab8f2c]') ?><?= e($n) ?></li><?php endforeach; ?>
+              <?php foreach ($t['notes'] as $n): ?><li><?= icon('shield-check', 18, 'text-[#ab8f2c]') ?><?= e($n) ?></li><?php endforeach; ?>
             </ul>
           </div>
         </div>
@@ -132,7 +139,7 @@ include __DIR__ . '/partials/page-open.php';
           <p class="pw-p">Tahapan umum yang akan Anda lalui. Detail dapat disesuaikan oleh dokter.</p>
         </div>
         <div class="pw-steps">
-          <?php foreach ($treatment_steps as $si => $step): ?>
+          <?php foreach ($t['steps'] as $si => $step): ?>
             <div class="pw-step" data-reveal style="--d:<?= $si * 0.07 ?>s">
               <span class="pw-step-no"><?= sprintf('%02d', $si + 1) ?></span>
               <h3><?= e($step[0]) ?></h3>
@@ -143,6 +150,7 @@ include __DIR__ . '/partials/page-open.php';
       </section>
 
       <!-- Dokter -->
+      <?php if ($doctors): ?>
       <section class="uv-container pw-section">
         <div class="pw-center">
           <span class="pw-eyebrow">Tim Medis</span>
@@ -151,7 +159,7 @@ include __DIR__ . '/partials/page-open.php';
         <div class="pw-docs">
           <?php foreach ($doctors as $d): ?>
             <div class="pw-doc" data-reveal>
-              <div class="pw-doc-img img-hover-wrap"><img src="<?= e($d['img']) ?>" alt="<?= e($d['name']) ?>" loading="lazy"></div>
+              <div class="pw-doc-img img-hover-wrap"><?php if (!empty($d['img'])): ?><img src="<?= e($d['img']) ?>" alt="<?= e($d['name']) ?>" loading="lazy"><?php endif; ?></div>
               <strong><?= e($d['name']) ?></strong>
               <span><?= e($d['role']) ?></span>
               <?php if (!empty($d['schedule'])): ?>
@@ -172,6 +180,7 @@ include __DIR__ . '/partials/page-open.php';
           <?php endforeach; ?>
         </div>
       </section>
+      <?php endif; ?>
 
       <!-- FAQ -->
       <section class="pw-band pw-band-soft">

@@ -1,5 +1,11 @@
 <?php
 require __DIR__ . '/includes/config.php';
+require __DIR__ . '/includes/db.php';
+require __DIR__ . '/includes/data.php';
+
+// Override treatment categories from DB (falls back to config.php when empty)
+$treatment_categories = load_treatment_categories($treatment_categories);
+
 require __DIR__ . '/includes/catalog.php';
 require __DIR__ . '/includes/icons.php';
 

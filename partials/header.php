@@ -11,6 +11,12 @@
   </div>
 </div>
 
+<?php
+$_nav_need = ['promo.php' => 'promos', 'index.php#dokter' => 'doctors', 'index.php#hasil' => 'results', 'index.php#testimoni' => 'testimonials'];
+$nav_links = array_values(array_filter($nav_links, function ($l) use ($_nav_need) {
+    return !isset($_nav_need[$l['href']]) || site_has($_nav_need[$l['href']]);
+}));
+?>
 <header class="sticky top-0 z-30 border-b border-[#E6DFD1] bg-white/80 backdrop-blur-md">
   <div class="uv-container flex items-center justify-between px-6 py-4 md:px-12">
     <a href="index.php" class="font-serif-display text-2xl tracking-tight">Uvora<span class="text-[#ab8f2c]">.</span></a>

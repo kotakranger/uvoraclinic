@@ -1,3 +1,0 @@
-# Deny direct browser access to the data directory
-Order deny,allow
-Deny from all

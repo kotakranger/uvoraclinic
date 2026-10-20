@@ -2,13 +2,13 @@
 require __DIR__ . '/includes/config.php';
 require __DIR__ . '/includes/catalog.php';
 require __DIR__ . '/includes/icons.php';
+require __DIR__ . '/includes/db.php';
+require __DIR__ . '/includes/data.php';
 
-// Find promo by slug
-$promo = null;
-$slug = $_GET['slug'] ?? '';
-foreach ($promotions as $p) {
-    if ($p['slug'] === $slug) { $promo = $p; break; }
-}
+// Find promo by slug — checks DB first, then falls back to config.php list
+$slug  = $_GET['slug'] ?? '';
+$promotions = load_promotions($promotions);
+$promo = find_promo_by_slug($slug, $promotions);
 if (!$promo) {
     http_response_code(404);
     header('Location: promo.php');

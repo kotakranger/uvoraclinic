@@ -11,6 +11,10 @@ define('ADMIN_USER',     'admin');
 define('ADMIN_PASSWORD_HASH', '$2y$12$eP7ecaDIx46.0jctJLeKtuherC6u9s3503pxIhkgPXuBGH5PsNCx2');
 
 if (session_status() === PHP_SESSION_NONE) {
+    // Use system temp dir to avoid MAMP session path issues
+    if (!is_writable(ini_get('session.save_path'))) {
+        session_save_path(sys_get_temp_dir());
+    }
     session_start([
         'cookie_httponly' => true,
         'cookie_samesite' => 'Strict',

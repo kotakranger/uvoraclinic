@@ -63,14 +63,8 @@ $products = [
     ['id' => 'p4', 'category' => 'Essence',     'name' => 'Hydra Glow Essence',       'desc' => 'Hyaluronic acid berlapis untuk hidrasi mendalam.',        'price' => 350000, 'img' => 'assets/images/product-essence.jpg'],
 ];
 
-// Hanya data "acne" yang ada di sumber asli. Tiga lainnya memakai foto yang sama —
-// ganti 'before' / 'after' dengan foto pasien yang sesuai.
-$concerns = [
-    ['id' => 'acne',       'label' => 'Jerawat & Bekas', 'treatment' => 'Acne Medical Solution', 'text' => 'Direkomendasikan 4–6 sesi dengan chemical peeling bertahap.',              'before' => 'assets/images/before-acne.jpg', 'after' => 'assets/images/after-acne.jpg'],
-    ['id' => 'pigment',    'label' => 'Pigmentasi',      'treatment' => 'Laser Rejuvenation',    'text' => 'Direkomendasikan 3–5 sesi picosecond laser dengan jarak 4 minggu.',       'before' => 'assets/images/before-acne.jpg', 'after' => 'assets/images/after-acne.jpg'],
-    ['id' => 'tightening', 'label' => 'Kulit Kendur',    'treatment' => 'Anti-Aging Program',    'text' => 'Direkomendasikan 2–3 sesi lifting non-bedah dengan terapi kolagen.',      'before' => 'assets/images/before-acne.jpg', 'after' => 'assets/images/after-acne.jpg'],
-    ['id' => 'glow',       'label' => 'Kulit Kusam',     'treatment' => 'Skin Booster',          'text' => 'Direkomendasikan 3 sesi skin booster untuk hidrasi dan kilau alami.',     'before' => 'assets/images/before-acne.jpg', 'after' => 'assets/images/after-acne.jpg'],
-];
+// Hasil before/after — dikelola dari Admin → Hasil.
+$concerns = [];
 
 $concern_benefits = [
     'Ditangani dokter spesialis',
@@ -79,45 +73,16 @@ $concern_benefits = [
 ];
 
 // Foto dokter masih sementara — ganti file 'img' dengan foto asli. 'exp' & 'tags' opsional.
-$doctors = [
-    [
-        'name'      => 'dr. Nurul Hidayah',
-        'role'      => 'Dokter Uvora Clinic',
-        'img'       => 'assets/images/doctor-salsabila.jpg',
-        'schedule'  => 'Senin – Sabtu · 10.00 – 18.00 WIB',
-        'expertise' => [
-            'Aesthetic Medicine',
-            'Skin Rejuvenation & Anti-Aging',
-            'Acne Management',
-            'Chemical Peeling',
-            'Skinbooster & Microneedling',
-        ],
-    ],
-    [
-        'name'      => 'dr. Nur Fatia Rahmawati',
-        'role'      => 'Dokter Uvora Clinic',
-        'img'       => 'assets/images/doctor-anindya.jpg',
-        'schedule'  => 'Senin – Sabtu · 10.00 – 18.00 WIB',
-        'expertise' => [
-            'Aesthetic Medicine',
-            'Laser & Light Therapy',
-            'Body Contouring & Slimming',
-            'Hair Restoration',
-            'Botox & Filler',
-        ],
-    ],
-];
+// Dokter — dikelola dari Admin → Dokter & Konten.
+$doctors = [];
 
-$review_summary = ['rating' => '5.0', 'count' => '1.240+'];
+// Isi untuk menampilkan ringkasan rating di atas testimoni, mis. ['rating' => '4.9', 'count' => '120']. null = disembunyikan.
+$review_summary = null;
 
-$testimonials = [
-    ['quote' => 'Pelayanan sangat profesional. Dokter menjelaskan setiap tahap perawatan dengan detail. Hasilnya melebihi ekspektasi.', 'name' => 'Kirana W.',   'city' => 'Jakarta Selatan'],
-    ['quote' => 'Ruangannya bersih, steril, dan nyaman. Konsultasi tidak terburu-buru. Kulit saya jauh lebih cerah setelah 3 sesi.',    'name' => 'Dimas P.',    'city' => 'Bandung'],
-    ['quote' => 'Klinik estetika terbaik yang pernah saya kunjungi. Timnya ramah dan sangat memahami kebutuhan kulit saya.',             'name' => 'Ayu Lestari', 'city' => 'Surabaya'],
-];
+// Testimoni — dikelola dari Admin → Dokter & Konten.
+$testimonials = [];
 
 // Katalog harga perawatan (perawatan.php). Kategori mengikuti price list.
-// 'prefix' => tampil sebelum harga, mis. "Mulai".
 $treatment_categories = [
     'hydrafacial' => ['label' => 'Hydrafacial', 'items' => [
         ['name' => 'Acne Hydrafacial',        'price' => 259000],
@@ -154,7 +119,7 @@ $treatment_categories = [
         ['name' => 'Uvora Body Define',   'price' => 689000],
     ]],
     'lainnya' => ['label' => 'Lainnya', 'items' => [
-        ['name' => 'Cauterisasi',      'price' => 179000, 'prefix' => 'Mulai'],
+        ['name' => 'Cauterisasi',      'price' => 179000],
         ['name' => 'Botox 100 UI',     'price' => 4899000],
         ['name' => 'Mounjaro 2,5 mg',  'price' => 4589000],
         ['name' => 'Mounjaro 5 mg',    'price' => 5219000],
@@ -212,85 +177,19 @@ $treatment_media = [
 ];
 
 // ---------------------------------------------------------------------------
-// Promosi — data dummy, nanti bisa dikelola dari admin panel.
-$promotions = [
-    [
-        'slug'     => 'grand-opening-special',
-        'title'    => 'Grand Opening Special',
-        'subtitle' => 'Diskon 20% untuk Semua Perawatan',
-        'banner'   => 'assets/images/promo/grand-opening.jpg',
-        'period'   => '1 – 31 Oktober 2026',
-        'category' => 'Diskon',
-        'desc'     => 'Rayakan pembukaan Uvora Clinic dengan diskon spesial 20% untuk semua perawatan. Berlaku untuk kunjungan pertama Anda!',
-        'terms'    => [
-            'Diskon 20% berlaku untuk seluruh perawatan yang tersedia di Uvora Clinic.',
-            'Promo hanya berlaku untuk kunjungan pertama (pasien baru).',
-            'Wajib melakukan konsultasi dokter terlebih dahulu sebelum perawatan.',
-            'Tidak dapat digabung dengan promo atau voucher lainnya.',
-            'Berlaku untuk pembayaran tunai, debit, dan kartu kredit.',
-            'Kuota terbatas, maksimal 50 pasien selama periode promo.',
-            'Satu pasien hanya dapat menggunakan promo ini satu kali.',
-            'Pendaftaran promo melalui WhatsApp atau langsung datang ke klinik.',
-            'Pihak klinik berhak mengubah syarat dan ketentuan tanpa pemberitahuan sebelumnya.',
-        ],
-    ],
-    [
-        'slug'     => 'paket-hemat-hydrafacial',
-        'title'    => 'Paket Hemat Hydrafacial',
-        'subtitle' => '3 Sesi Hydrafacial — Hemat hingga Rp200.000',
-        'banner'   => 'assets/images/promo/paket-hydrafacial.jpg',
-        'period'   => '1 Oktober – 30 November 2026',
-        'category' => 'Paket',
-        'desc'     => 'Nikmati paket hemat 3 sesi Hydrafacial pilihan Anda dan hemat hingga Rp200.000 dari harga satuan.',
-        'terms'    => [
-            'Paket berlaku untuk 3 sesi Hydrafacial (Acne, Brightening, atau Salmon DNA).',
-            'Sesi harus digunakan dalam waktu 3 bulan sejak pembelian paket.',
-            'Pembayaran dilakukan di awal (full payment) saat membeli paket.',
-            'Paket tidak dapat ditukar uang kembali (non-refundable).',
-            'Jadwal perawatan harus dibuat melalui WhatsApp minimal H-1.',
-            'Konsultasi dokter gratis di setiap sesi.',
-            'Tidak dapat digabung dengan promo lainnya.',
-            'Berlaku untuk semua metode pembayaran.',
-            'Pengalihan paket ke orang lain tidak diperkenankan.',
-        ],
-    ],
-    [
-        'slug'     => 'referral-bonus',
-        'title'    => 'Ajak Teman, Dapat Bonus!',
-        'subtitle' => 'Bonus Rp100.000 untuk Kamu & Temanmu',
-        'banner'   => 'assets/images/promo/referral-bonus.jpg',
-        'period'   => 'Berlaku tanpa batas waktu',
-        'category' => 'Referral',
-        'desc'     => 'Ajak temanmu untuk perawatan di Uvora Clinic. Kamu dan temanmu masing-masing mendapat bonus Rp100.000.',
-        'terms'    => [
-            'Setiap pasien yang mereferensikan teman baru akan mendapat voucher Rp100.000.',
-            'Teman yang direferensikan juga akan mendapat voucher Rp100.000 untuk kunjungan pertama.',
-            'Voucher berlaku untuk semua perawatan dengan minimal transaksi Rp500.000.',
-            'Teman yang direferensikan harus merupakan pasien baru Uvora Clinic.',
-            'Voucher berlaku 30 hari sejak diterbitkan.',
-            'Tidak ada batasan jumlah referral per pasien.',
-            'Voucher tidak dapat ditukar uang tunai.',
-            'Voucher tidak dapat digabung dengan promo lain.',
-            'Informasikan kode referral ke kasir sebelum melakukan pembayaran.',
-            'Pihak klinik berhak mengubah atau menghentikan program ini sewaktu-waktu.',
-        ],
-    ],
-];
+// Promo — dikelola dari Admin → Promo.
+$promotions = [];
 
 // ---------------------------------------------------------------------------
 // Content Reels — video pendek portrait (TikTok / IG Reels / YouTube Shorts).
-// Nantinya dikelola melalui panel backoffice. Saat ini data dummy.
+// Dikelola dari Admin → Dokter & Konten.
 // 'embed_url' bisa berupa:
 //   - Instagram: https://www.instagram.com/p/{shortcode}/embed/
 //   - TikTok:    https://www.tiktok.com/embed/v2/{id}
 //   - YouTube:   https://www.youtube.com/embed/{id}?shorts=1
 $content_reels_follow = ['label' => 'Ikuti kami di TikTok', 'href' => 'https://www.tiktok.com/@indaha.l'];
-$content_reels = [
-    ['embed_url' => 'https://www.tiktok.com/embed/v2/7598809716193594631'],
-    ['embed_url' => 'https://www.instagram.com/p/DeRBzLhp4K4/embed/'],
-    ['embed_url' => 'https://www.instagram.com/p/DeRBzLhp4K4/embed/'],
-    ['embed_url' => 'https://www.instagram.com/p/DeRBzLhp4K4/embed/'],
-];
+// Reels — dikelola dari Admin → Dokter & Konten.
+$content_reels = [];
 
 $footer_treatments = ['Hydrafacial', 'Peeling Treatments', 'Microneedling', 'Skinbooster'];
 
