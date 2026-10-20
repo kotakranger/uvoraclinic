@@ -131,7 +131,32 @@ function admin_head(string $title, string $active_page = 'consultations'): void 
     .tag { display: inline-block; padding: .2rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 600; }
     .tag-active { background: #dcfce7; color: #15803d; }
     .tag-inactive { background: #f3f4f6; color: #6b7280; }
+
+    /* Search + filter tabs (dipakai Konsultasi & Layanan) */
+    .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 360px; }
+    .search-wrap > svg { position: absolute; left: .8rem; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+    .search-input { width: 100%; padding: .6rem .9rem .6rem 2.4rem; border: 1px solid var(--border); border-radius: 10px; font-size: .85rem; font-family: inherit; background: #fff; color: var(--dark); transition: border-color .15s, box-shadow .15s; -webkit-appearance: none; appearance: none; }
+    .search-input::placeholder { color: #a39b8f; }
+    .search-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(171,143,44,.15); }
+    .filter-tabs { display: flex; gap: .4rem; flex-wrap: wrap; align-items: center; }
+    .filter-tab { display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .95rem; border-radius: 999px; font-size: .8rem; font-weight: 500; text-decoration: none; border: 1px solid var(--border); background: #fff; color: var(--muted); cursor: pointer; font-family: inherit; transition: background .15s, border-color .15s, color .15s; white-space: nowrap; }
+    .filter-tab:hover { border-color: var(--gold); color: var(--gold); }
+    .filter-tab.active { background: var(--gold); border-color: var(--gold); color: #fff; }
+    .filter-tab .count { font-size: .7rem; font-weight: 600; padding: .05rem .4rem; border-radius: 999px; background: rgba(0,0,0,.07); }
+    .filter-tab.active .count { background: rgba(255,255,255,.25); }
+    .table-wrap { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; }
+    .img-missing { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 6px; border: 1px dashed #e0b4b4; background: #fef2f2; color: var(--danger); font-size: .6rem; font-weight: 600; text-align: center; line-height: 1.15; }
   </style>
+  <script>
+    // Gambar rusak (file upload hilang) → tampilkan penanda jelas, bukan ikon pecah
+    document.addEventListener('error', function (e) {
+      var t = e.target;
+      if (!t || t.tagName !== 'IMG' || !t.classList.contains('img-preview')) return;
+      var s = document.createElement('span');
+      s.className = 'img-missing'; s.textContent = 'File hilang'; s.title = t.getAttribute('src');
+      t.replaceWith(s);
+    }, true);
+  </script>
 </head>
 <body>
 

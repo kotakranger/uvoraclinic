@@ -163,8 +163,21 @@ admin_head('Layanan', $active_page);
       Tambah Layanan
     </a>
   </div>
+  <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:.75rem;">
+    <div class="search-wrap" style="max-width:420px;">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" type="search" id="svc-search" placeholder="Cari nama layanan…" autocomplete="off">
+    </div>
+    <div class="filter-tabs" id="svc-cats">
+      <button type="button" class="filter-tab active" data-cat="all">Semua <span class="count"><?= count($items) ?></span></button>
+      <?php foreach ($categories as $cat): ?>
+      <button type="button" class="filter-tab" data-cat="<?= (int)$cat['id'] ?>"><?= he($cat['label']) ?> <span class="count"><?= count(array_filter($items, fn($i) => $i['category_id'] == $cat['id'])) ?></span></button>
+      <?php endforeach; ?>
+    </div>
+    <p class="hint" id="svc-count" style="margin:0;"></p>
+  </div>
   <div class="tbl-wrap">
-    <table>
+    <table id="svc-table">
       <thead>
         <tr><th>Gambar</th><th>Nama</th><th>Kategori</th><th>Harga</th><th>Durasi</th><th>Status</th><th>Aksi</th></tr>
       </thead>
@@ -173,7 +186,7 @@ admin_head('Layanan', $active_page);
         <tr><td colspan="7" class="empty-state">Belum ada layanan. Tambahkan di atas.</td></tr>
         <?php else: ?>
         <?php foreach ($items as $it): ?>
-        <tr>
+        <tr data-svc data-cat="<?= (int)$it['category_id'] ?>" data-name="<?= he(mb_strtolower($it['name'] . ' ' . $it['slug'])) ?>">
           <td>
             <?php if ($it['img']): ?>
               <img src="../<?= he($it['img']) ?>" class="img-preview" alt="">
@@ -211,6 +224,7 @@ admin_head('Layanan', $active_page);
           </td>
         </tr>
         <?php endforeach; ?>
+        <tr id="svc-none" style="display:none;"><td colspan="7" class="empty-state">Tidak ada layanan yang cocok. Coba kata kunci atau kategori lain.</td></tr>
         <?php endif; ?>
       </tbody>
     </table>
@@ -297,6 +311,40 @@ function autoSlug(input, targetId) {
     .replace(/[^a-z0-9\-]/g, '');
   document.getElementById(targetId).value = slug;
 }
+
+// ── Cari + filter kategori (daftar layanan) ──
+(function () {
+  var rows = Array.prototype.slice.call(document.querySelectorAll('tr[data-svc]'));
+  if (!rows.length) return;
+  var input = document.getElementById('svc-search');
+  var tabs  = document.querySelectorAll('#svc-cats .filter-tab');
+  var none  = document.getElementById('svc-none');
+  var info  = document.getElementById('svc-count');
+  var cat = 'all';
+  try { cat = sessionStorage.getItem('svcCat') || 'all'; } catch (e) {}
+
+  function apply() {
+    var q = input.value.trim().toLowerCase(), shown = 0;
+    rows.forEach(function (r) {
+      var ok = (cat === 'all' || r.dataset.cat === cat) && (!q || r.dataset.name.indexOf(q) !== -1);
+      r.style.display = ok ? '' : 'none';
+      if (ok) shown++;
+    });
+    none.style.display = shown ? 'none' : '';
+    info.textContent = 'Menampilkan ' + shown + ' dari ' + rows.length + ' layanan';
+    tabs.forEach(function (t) { t.classList.toggle('active', t.dataset.cat === cat); });
+  }
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      cat = t.dataset.cat;
+      try { sessionStorage.setItem('svcCat', cat); } catch (e) {}
+      apply();
+    });
+  });
+  input.addEventListener('input', apply);
+  if (![].some.call(tabs, function (t) { return t.dataset.cat === cat; })) cat = 'all';
+  apply();
+})();
 
 function editCat(cat) {
   document.getElementById('ec-id').value    = cat.id;

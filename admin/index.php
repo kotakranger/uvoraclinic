@@ -130,6 +130,12 @@ $active_page = 'consultations';
   .page-btn:hover, .page-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
   .page-btn.disabled { opacity: .4; pointer-events: none; }
   .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+  .treatment-pill { display: inline-block; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: .2rem .65rem; border-radius: 999px; background: var(--gold-pale); border: 1px solid var(--gold-lt); color: #7a6420; font-size: .76rem; font-weight: 500; vertical-align: middle; }
+  .message-cell { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+  .actions { display: flex; gap: .35rem; align-items: center; }
+  .actions .btn-sm { display: inline-flex; align-items: center; gap: .35rem; padding: .35rem .65rem; border-radius: 8px; font-size: .76rem; font-weight: 500; text-decoration: none; border: 1px solid var(--border); cursor: pointer; }
+  .btn-whatsapp { background: #25D366; border-color: #25D366 !important; color: #fff; }
+  .btn-whatsapp:hover { background: #1fb558; }
   @media (max-width: 768px) { .hide-sm { display: none; } }
 </style>
 

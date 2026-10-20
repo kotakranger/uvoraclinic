@@ -13,10 +13,10 @@
     php -r "echo password_hash('PasswordBaruYangKuat', PASSWORD_BCRYPT);"
     ```
   - Salin string hash yang dihasilkan (berawalan `$2y$12$...`).
-  - Tempelkan ke konstanta `ADMIN_PASSWORD_HASH` di file [`admin/auth.php`](file:///Users/mac/Development/Uvoraclinic/uvoraclinic/admin/auth.php#L12).
+  - Tempelkan ke konstanta `ADMIN_PASSWORD_HASH` di file [`admin/auth.php`](admin/auth.php).
 
 - [ ] **Siapkan File Kredensial Database Hosting**
-  - Salin [`includes/db_config.example.php`](file:///Users/mac/Development/Uvoraclinic/uvoraclinic/includes/db_config.example.php) menjadi `includes/db_config.php`.
+  - Salin [`includes/db_config.example.php`](includes/db_config.example.php) menjadi `includes/db_config.php`.
   - Isi nama database, username, dan password MySQL dari panel hosting Anda.
   - *Catatan: File `includes/db_config.php` otomatis diabaikan git demi keamanan.*
 
@@ -43,11 +43,9 @@
     ```
   - Pastikan semua tabel berhasil dibuat dengan tanda centang hijau (`✓ Table ... ready`).
 
-- [ ] **(Opsional) Seed Data Layanan Default**
-  - Jika tabel layanan masih kosong dan ingin langsung memasukkan 27 item katalog bawaan:
-    ```text
-    https://domain-anda.com/setup/seed.php?run=1
-    ```
+- [ ] **Import Katalog Layanan (27 item, 7 kategori)**
+  - Di phpMyAdmin pilih database Anda → tab **Import** → pilih `setup/layanan_data.sql`.
+  - Hanya jalankan jika tabel layanan masih kosong. Foto layanan "Acne Hydrafacial" perlu di-upload ulang lewat admin.
 
 - [ ] **Wajib: Hapus Folder `setup/` dari Hosting**
   - Setelah migrasi berhasil, segera hapus folder `setup/` dari File Manager hosting Anda agar tidak dapat diakses publik.

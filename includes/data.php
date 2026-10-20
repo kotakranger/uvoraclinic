@@ -238,6 +238,10 @@ function load_results(): array
     $rows = _db_rows(
         "SELECT * FROM results WHERE is_active = 1 AND before_img <> '' AND after_img <> '' ORDER BY sort_order ASC, id ASC"
     );
+    // Lewati hasil yang file fotonya sudah tidak ada di server (hindari gambar pecah di landing page)
+    $root = dirname(__DIR__) . '/';
+    $exists = fn($p) => preg_match('#^https?://#i', $p) || is_file($root . ltrim($p, '/'));
+    $rows = array_values(array_filter($rows, fn($r) => $exists($r['before_img']) && $exists($r['after_img'])));
     return array_map(fn($r) => [
         'id'        => 'r' . $r['id'],
         'label'     => $r['label'],

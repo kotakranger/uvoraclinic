@@ -3,7 +3,7 @@
 Website klinik + panel admin. PHP 7.4+ (disarankan 8.x), MySQL/MariaDB, ekstensi **GD** (resize foto, dukungan WebP).
 Tanpa Node.js dan tanpa proses build — cocok untuk shared hosting (Hostinger, dll).
 
-> ⚠️ **PENTING SEBELUM GO LIVE**: Lihat dan ikuti [DEPLOY_CHECKLIST.md](file:///Users/mac/Development/Uvoraclinic/uvoraclinic/DEPLOY_CHECKLIST.md) untuk langkah-langkah persiapan sebelum dan sesudah upload ke hosting.
+> ⚠️ **PENTING SEBELUM GO LIVE**: Lihat dan ikuti [DEPLOY_CHECKLIST.md](DEPLOY_CHECKLIST.md) untuk langkah-langkah persiapan sebelum dan sesudah upload ke hosting.
 
 ## Struktur folder
 
@@ -18,7 +18,7 @@ admin/           Panel admin (login, layanan, promo, hasil, dokter & konten, kon
   partials/      Potongan form admin
 api/consult.php  Endpoint form konsultasi
 includes/        Logika bersama (config, db, data, catalog, uploader, csrf) — diblokir dari akses browser
-setup/           migrate.php + seed.php — HANYA dipakai sekali saat instalasi, lalu HAPUS dari hosting
+setup/           migrate.php + layanan_data.sql — HANYA dipakai sekali saat instalasi, lalu HAPUS dari hosting
 ```
 
 ## Mengelola konten (Admin → /admin)
@@ -42,7 +42,7 @@ setup/           migrate.php + seed.php — HANYA dipakai sekali saat instalasi,
 2. **Upload semua file** ke `public_html` (zip lalu Extract di File Manager lebih cepat). Pastikan `index.php` langsung ada di `public_html`.
 3. **Salin** `includes/db_config.example.php` → `includes/db_config.php`, isi kredensial database. (File ini tidak ikut git.)
 4. **Buat tabel**: buka `https://domain-anda/setup/migrate.php?run=1`.
-   **Isi daftar layanan awal** (opsional, hanya jika tabel layanan kosong): `https://domain-anda/setup/seed.php?run=1`.
+   **Isi katalog layanan** (hanya jika tabel layanan kosong): di phpMyAdmin pilih database → Import → `setup/layanan_data.sql`.
 5. **Hapus folder `setup/`** dari hosting.
 6. **Ganti password admin**: buat hash dengan
    `php -r "echo password_hash('PASSWORD-BARU', PASSWORD_BCRYPT);"`
