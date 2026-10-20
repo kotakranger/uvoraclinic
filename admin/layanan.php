@@ -197,7 +197,7 @@ admin_head('Layanan', $active_page);
             <?php endif; ?>
           </td>
           <td>
-            <strong><?= he($it['name']) ?></strong>
+            <strong><?= he($it['name']) ?></strong><?php if (!empty($it['is_featured'])): ?> <span class="tag tag-active" style="background:#faf6ee;color:#7a6420;">★ Unggulan</span><?php endif; ?>
             <div style="font-size:.74rem;color:var(--muted);"><?= he($it['slug']) ?></div>
           </td>
           <td><?= he($it['cat_label'] ?? '-') ?></td>

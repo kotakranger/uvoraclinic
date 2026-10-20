@@ -42,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
     $dur    = trim($_POST['duration'] ?? '');
     $desc   = trim($_POST['description'] ?? '');
     $active = isset($_POST['is_active']) ? 1 : 0;
+    $featured = isset($_POST['is_featured']) ? 1 : 0;
 
     try {
         $img  = handle_image_field('img',  'layanan', $_POST['img']  ?? '');
@@ -64,15 +65,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
         try {
             if ($id) {
                 $pdo->prepare("UPDATE layanan_items SET category_id=?, slug=?, name=?, price=?, price_prefix='', duration=?, description=?,
-                        img=?, img2=?, img3=?, how_title=?, how_text=?, features=?, suitable=?, notes=?, steps=?, is_active=? WHERE id=?")
-                    ->execute(array_merge([$cat_id, $slug, $name, $price, $dur, $desc, $img, $img2, $img3], $detail, [$active, $id]));
+                        img=?, img2=?, img3=?, how_title=?, how_text=?, features=?, suitable=?, notes=?, steps=?, is_active=?, is_featured=? WHERE id=?")
+                    ->execute(array_merge([$cat_id, $slug, $name, $price, $dur, $desc, $img, $img2, $img3], $detail, [$active, $featured, $id]));
                 flash_set('ok', 'Layanan diperbarui.');
             } else {
                 $sort = (int)$pdo->query("SELECT COALESCE(MAX(sort_order),-1)+1 FROM layanan_items")->fetchColumn();
                 $pdo->prepare("INSERT INTO layanan_items (category_id, slug, name, price, price_prefix, duration, description,
-                        img, img2, img3, how_title, how_text, features, suitable, notes, steps, sort_order, is_active)
-                        VALUES (?,?,?,?,'',?,?,?,?,?,?,?,?,?,?,?,?,?)")
-                    ->execute(array_merge([$cat_id, $slug, $name, $price, $dur, $desc, $img, $img2, $img3], $detail, [$sort, $active]));
+                        img, img2, img3, how_title, how_text, features, suitable, notes, steps, sort_order, is_active, is_featured)
+                        VALUES (?,?,?,?,'',?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+                    ->execute(array_merge([$cat_id, $slug, $name, $price, $dur, $desc, $img, $img2, $img3], $detail, [$sort, $active, $featured]));
                 flash_set('ok', "Layanan \"{$name}\" ditambahkan.");
             }
             header('Location: layanan.php'); exit;
@@ -81,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_verify()) {
         }
     }
     // keep what the admin typed when validation fails
-    $row = array_merge($row, $_POST, ['id' => $id, 'is_active' => $active]);
+    $row = array_merge($row, $_POST, ['id' => $id, 'is_active' => $active, 'is_featured' => $featured]);
 }
 
 $v = $row;
@@ -137,6 +138,13 @@ admin_head($id ? 'Edit Layanan' : 'Tambah Layanan', $active_page);
         <span class="toggle"><input type="checkbox" name="is_active" <?= !$id || !empty($v['is_active']) ? 'checked' : '' ?>><span class="slider"></span></span>
         Aktif (tampil di website)
       </label>
+    </div>
+    <div class="form-group">
+      <label class="toggle-wrap">
+        <span class="toggle"><input type="checkbox" name="is_featured" <?= !empty($v['is_featured']) ? 'checked' : '' ?>><span class="slider"></span></span>
+        Unggulan (tampil di beranda &mdash; "Perawatan Unggulan")
+      </label>
+      <p class="hint">Disarankan 3 layanan. Jika kosong, beranda menampilkan 3 layanan pertama.</p>
     </div>
     <div style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:.5rem">
       <a href="layanan.php" class="btn btn-secondary">Batal</a>

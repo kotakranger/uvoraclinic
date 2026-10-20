@@ -8,25 +8,26 @@
       Semua perawatan <?= icon('arrow-up-right', 16) ?>
     </a>
   </div>
-  <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-    <?php foreach ($treatments as $i => $t): ?>
-      <div data-reveal style="--d:<?= $i * 0.1 ?>s">
-        <div class="group overflow-hidden rounded-3xl border border-[#E6DFD1] bg-white shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
-          <div class="img-hover-wrap aspect-[4/3]">
-            <img alt="<?= e($t['name']) ?>" class="h-full w-full object-cover" src="<?= e($t['img']) ?>" loading="lazy">
-          </div>
-          <div class="p-7">
-            <span class="text-[10px] uppercase tracking-[0.2em] text-[#ab8f2c]"><?= e($t['tag']) ?></span>
-            <h3 class="font-serif-display mt-2 text-2xl"><?= e($t['name']) ?></h3>
-            <p class="mt-3 text-sm leading-relaxed text-[#6B6459]"><?= e($t['desc']) ?></p>
-            <div class="mt-5 flex items-center justify-between border-t border-[#E6DFD1] pt-4 text-xs text-[#9B9384]">
-              <span><?= e($t['price']) ?></span>
-              <span><?= e($t['duration']) ?></span>
-            </div>
-            <a href="<?= e(whatsapp_link('Halo Uvora, saya ingin bertanya tentang perawatan ' . $t['name'] . '.')) ?>" target="_blank" rel="noopener" class="block text-center rounded-full border border-[#E6DFD1] bg-transparent px-8 py-3.5 text-sm font-medium text-[#353535] transition-colors duration-300 hover:border-[#ab8f2c] hover:text-[#ab8f2c] mt-5 w-full" data-testid="opt1-inquiry-<?= $i ?>">Tanya Perawatan</a>
+  <div class="pw-grid">
+    <?php foreach ($featured_treatments as $i => $t): ?>
+      <a href="perawatan-detail.php?slug=<?= e($t['slug']) ?>" class="pw-card" data-reveal style="--d:<?= $i * 0.1 ?>s">
+        <div class="pw-card-img img-hover-wrap">
+          <img src="<?= e($t['img']) ?>" alt="<?= e($t['name']) ?>" loading="lazy">
+          <span class="pw-pill pw-pill-l"><?= e($t['cat_label']) ?></span>
+          <span class="pw-pill pw-pill-r"><?= icon('clock', 12) ?> <?= e($t['dur']) ?></span>
+        </div>
+        <div class="pw-card-body">
+          <h3 class="font-serif-display pw-card-name"><?= e($t['name']) ?></h3>
+          <p class="pw-card-desc"><?= e($t['desc']) ?></p>
+          <div class="pw-card-foot">
+            <strong><?= e(treatment_price($t)) ?></strong>
+            <span class="pw-more">Lihat detail <?= icon('arrow-up-right', 14) ?></span>
           </div>
         </div>
-      </div>
+      </a>
     <?php endforeach; ?>
+  </div>
+  <div class="mt-10 text-center md:hidden">
+    <a href="perawatan.php" class="inline-flex items-center gap-1 text-sm text-[#6B6459] hover:text-[#ab8f2c]">Semua perawatan <?= icon('arrow-up-right', 16) ?></a>
   </div>
 </section>

@@ -12,6 +12,13 @@ $promotions   = load_promotions($promotions);
 $content_reels = load_content_reels($content_reels);
 $concerns      = load_results();
 
+// Perawatan unggulan = layanan dari katalog (sama dengan halaman /perawatan.php)
+$treatment_categories = load_treatment_categories($treatment_categories);
+require __DIR__ . '/includes/catalog.php';
+$featured_treatments = array_values(array_filter($catalog, fn($t) => $t['featured']));
+if (!$featured_treatments) $featured_treatments = $catalog;
+$featured_treatments = array_slice($featured_treatments, 0, 3);
+
 // Cache-busting: berubah otomatis setiap kali CSS/JS di-upload ulang.
 $asset_version = max(
     (int) @filemtime(__DIR__ . '/assets/css/style.css'),

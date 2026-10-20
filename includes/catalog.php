@@ -238,6 +238,7 @@ foreach ($treatment_categories as $cid => $cat) {
             'steps'     => $steps ?: $treatment_steps,
             'img'       => $cover,
             'gallery'   => $gallery,
+            'featured'  => !empty($item['featured']),
         ];
     }
 }

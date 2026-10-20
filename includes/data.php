@@ -143,6 +143,7 @@ function ensure_layanan_schema(): void
             'suitable'  => 'TEXT NULL',
             'notes'     => 'TEXT NULL',
             'steps'     => 'TEXT NULL',
+            'is_featured' => 'TINYINT(1) NOT NULL DEFAULT 0',
         ];
         foreach ($add as $col => $def) {
             if (!in_array($col, $have, true)) {
@@ -185,6 +186,7 @@ function load_treatment_categories(array $fallback): array
                 'suitable'  => $i['suitable'] ?? '',
                 'notes'     => $i['notes'] ?? '',
                 'steps'     => $i['steps'] ?? '',
+                'featured'  => !empty($i['is_featured']),
             ], $items),
         ];
     }
