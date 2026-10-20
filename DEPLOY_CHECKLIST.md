@@ -20,6 +20,10 @@
 
 ## 2. Proses Upload ke Hosting
 
+- [ ] **Cloudflare Turnstile (opsional)**
+  - Buat widget di dash.cloudflare.com → Turnstile, tambahkan domain situs Anda (mis. `uvoraclinic.com`).
+  - Isi `turnstile_site` dan `turnstile_secret` di `includes/db_config.php`. Jika dikosongkan, widget tidak tampil dan form tetap dilindungi honeypot + batas per IP.
+
 - [ ] **Upload File Website**
   - Arsipkan seluruh isi project (zip) lalu ekstrak di dalam direktori root web hosting (biasanya `public_html`).
   - Pastikan file `index.php` berada langsung di `public_html/index.php`.

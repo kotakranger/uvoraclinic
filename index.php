@@ -69,7 +69,7 @@ $asset_version = max(
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?>;
   </script>
   <script src="assets/js/lenis.min.js?v=<?= e($asset_version) ?>" defer></script>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <?php if (turnstile_enabled()): ?><script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script><?php endif; ?>
   <script src="assets/js/main.js?v=<?= e($asset_version) ?>" defer></script>
 </body>
 </html>

@@ -11,12 +11,10 @@
  *  6. Saves to MySQL and redirects user to WhatsApp
  */
 
-// Cloudflare Turnstile secret key
-define('TURNSTILE_SECRET', '0x4AAAAAAFT0rinTU-7nyUTNgL5BekMPsEg');
-
 require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/data.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -42,35 +40,32 @@ if (!empty($_POST['website'])) {
     exit;
 }
 
-// ── 3. Cloudflare Turnstile verification ─────────────────────────────────
-$ts_token = trim($_POST['cf-turnstile-response'] ?? '');
-
-if (empty($ts_token)) {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'error' => 'Verifikasi keamanan gagal. Muat ulang halaman dan coba lagi.']);
-    exit;
-}
-
-// Call Cloudflare siteverify API
-$ts_verify = @file_get_contents('https://challenges.cloudflare.com/turnstile/v0/siteverify', false,
-    stream_context_create(['http' => [
-        'method'  => 'POST',
-        'header'  => 'Content-Type: application/x-www-form-urlencoded',
-        'content' => http_build_query([
-            'secret'   => TURNSTILE_SECRET,
-            'response' => $ts_token,
-            'remoteip' => $ip ?? $_SERVER['REMOTE_ADDR'] ?? '',
-        ]),
-        'timeout' => 5,
-    ]])
-);
-
-$ts_result = $ts_verify ? json_decode($ts_verify, true) : null;
-
-if (empty($ts_result['success'])) {
-    http_response_code(403);
-    echo json_encode(['ok' => false, 'error' => 'Verifikasi keamanan gagal. Silakan coba lagi.']);
-    exit;
+// ── 3. Cloudflare Turnstile verification (hanya bila kunci dikonfigurasi) ──
+if (turnstile_enabled()) {
+    $ts_token = trim($_POST['cf-turnstile-response'] ?? '');
+    if ($ts_token === '') {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'error' => 'Verifikasi keamanan gagal. Muat ulang halaman dan coba lagi.']);
+        exit;
+    }
+    $ts_verify = @file_get_contents('https://challenges.cloudflare.com/turnstile/v0/siteverify', false,
+        stream_context_create(['http' => [
+            'method'  => 'POST',
+            'header'  => 'Content-Type: application/x-www-form-urlencoded',
+            'content' => http_build_query([
+                'secret'   => turnstile_config()['secret'],
+                'response' => $ts_token,
+                'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
+            ]),
+            'timeout' => 5,
+        ]])
+    );
+    $ts_result = $ts_verify ? json_decode($ts_verify, true) : null;
+    if (empty($ts_result['success'])) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'Verifikasi keamanan gagal. Silakan coba lagi.']);
+        exit;
+    }
 }
 
 // ── 4. Input validation & sanitisation ───────────────────────────────────
@@ -78,12 +73,20 @@ $name      = trim(strip_tags($_POST['name']      ?? ''));
 $phone     = trim(strip_tags($_POST['phone']     ?? ''));
 $treatment = trim(strip_tags($_POST['treatment'] ?? ''));
 $message   = trim(strip_tags($_POST['message']   ?? ''));
+$visit_date = trim($_POST['visit_date'] ?? '');
+$visit_time = trim($_POST['visit_time'] ?? '');
 
 $errors = [];
 if (mb_strlen($name) < 2 || mb_strlen($name) > 100)        $errors[] = 'Nama tidak valid.';
 if (!preg_match('/^[\d\s\+\-\(\)]{7,20}$/', $phone))       $errors[] = 'Nomor WhatsApp tidak valid.';
 if (empty($treatment))                                       $errors[] = 'Pilih perawatan.';
 if (mb_strlen($message) > 1000)                             $errors[] = 'Pesan terlalu panjang.';
+
+$d = DateTime::createFromFormat('!Y-m-d', $visit_date);
+$today = new DateTime('today');
+if (!$d || $d->format('Y-m-d') !== $visit_date)             $errors[] = 'Tanggal kunjungan tidak valid.';
+elseif ($d < $today || $d > (clone $today)->modify('+90 days')) $errors[] = 'Pilih tanggal kunjungan dalam 90 hari ke depan.';
+if (!preg_match('/^(1[0-7]):([03]0)$/', $visit_time))        $errors[] = 'Jam kunjungan tidak valid (10.00–17.30 WIB).';
 
 if ($errors) {
     http_response_code(422);
@@ -97,6 +100,7 @@ $ip = filter_var(trim(explode(',', $ip)[0]), FILTER_VALIDATE_IP) ?: '0.0.0.0';
 
 try {
     $pdo = db();
+    ensure_consultations_schema();
 
     // Count recent submissions from this IP in the last hour
     $stmt = $pdo->prepare(
@@ -115,13 +119,15 @@ try {
 
     // ── 5. Save consultation ──────────────────────────────────────────────
     $pdo->prepare(
-        "INSERT INTO consultations (name, phone, treatment, message, ip, user_agent)
-         VALUES (?, ?, ?, ?, ?, ?)"
+        "INSERT INTO consultations (name, phone, treatment, message, visit_date, visit_time, ip, user_agent)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     )->execute([
         $name,
         $phone,
         $treatment,
         $message ?: null,
+        $visit_date,
+        $visit_time,
         $ip,
         mb_substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255),
     ]);
@@ -134,7 +140,8 @@ try {
 }
 
 // ── 6. Build WhatsApp link — same format as before ────────────────────────
-$text = "Halo Uvora, saya {$name} ingin bertanya tentang perawatan {$treatment}.";
+$jadwal = $d->format('d-m-Y') . ' pukul ' . str_replace(':', '.', $visit_time) . ' WIB';
+$text = "Halo Uvora, saya {$name} ingin booking perawatan {$treatment} pada {$jadwal}.";
 if ($message) $text .= " Saya memiliki keluhan: {$message}";
 $wa = 'https://wa.me/' . $site['whatsapp'] . '?text=' . rawurlencode($text);
 

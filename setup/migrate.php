@@ -179,6 +179,7 @@ foreach ($tables as $name => $sql) {
 // ─── Kolom detail layanan + tabel hasil (before/after) ─────────────────────
 ensure_layanan_schema();
 ensure_results_schema();
+ensure_consultations_schema();
 log_msg('✓ Kolom detail layanan & tabel `results` siap', 'ok');
 
 // ─── Akun admin ────────────────────────────────────────────────────────────

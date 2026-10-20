@@ -9,6 +9,28 @@
 
 require_once __DIR__ . '/../includes/db.php';
 
+// Jika database tidak bisa dihubungi, tampilkan penjelasan (bukan HTTP 500 kosong).
+try {
+    db();
+} catch (Throwable $e) {
+    error_log('[uvora] admin DB error: ' . $e->getMessage());
+    http_response_code(503);
+    $code = $e instanceof PDOException ? (string) ($e->errorInfo[1] ?? $e->getCode()) : 'config';
+    $hint = [
+        '1045' => 'Username atau password database salah.',
+        '1049' => 'Nama database tidak ditemukan.',
+        '2002' => 'Server database tidak bisa dihubungi (host/port/socket salah — di hosting kosongkan \'socket\' dan pakai host \'localhost\').',
+        '2006' => 'Koneksi database terputus.',
+        'config' => 'File includes/db_config.php tidak ada atau formatnya salah.',
+    ][$code] ?? 'Periksa kredensial database.';
+    echo '<!doctype html><meta charset="utf-8"><title>Database tidak terhubung</title>'
+       . '<body style="font-family:system-ui;max-width:560px;margin:15vh auto;padding:0 1rem;color:#1a1714">'
+       . '<h1 style="font-size:1.2rem">Database tidak terhubung</h1>'
+       . '<p>' . htmlspecialchars($hint) . '</p>'
+       . '<p style="color:#6b6459;font-size:.85rem">Perbaiki <code>includes/db_config.php</code> di hosting, lalu muat ulang. Kode: ' . htmlspecialchars($code) . '</p></body>';
+    exit;
+}
+
 const ADMIN_MAX_FAILS     = 5;      // percobaan gagal ...
 const ADMIN_LOCK_WINDOW   = 900;    // ... dalam 15 menit → login dikunci sementara
 const ADMIN_IDLE_TIMEOUT  = 7200;   // logout otomatis setelah 2 jam tidak aktif

@@ -210,6 +210,21 @@ function site_has(string $what): bool
     return $cache[$what];
 }
 
+// ── Konsultasi: jadwal kunjungan ─────────────────────────────────────────────
+
+/** Tambah kolom jadwal (tanggal & jam kunjungan) ke tabel consultations bila belum ada (idempotent). */
+function ensure_consultations_schema(): void
+{
+    static $done = false;
+    if ($done) return;
+    $done = true;
+    try {
+        $have = array_column(db()->query("SHOW COLUMNS FROM consultations")->fetchAll(), 'Field');
+        if (!in_array('visit_date', $have, true)) db()->exec("ALTER TABLE consultations ADD COLUMN visit_date DATE NULL AFTER message");
+        if (!in_array('visit_time', $have, true)) db()->exec("ALTER TABLE consultations ADD COLUMN visit_time CHAR(5) NULL AFTER visit_date");
+    } catch (Throwable $e) { /* tabel belum ada / DB tidak tersedia */ }
+}
+
 // ── Hasil (before / after) ───────────────────────────────────────────────────
 
 function ensure_results_schema(): void

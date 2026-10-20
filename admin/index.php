@@ -3,8 +3,10 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../includes/admin_layout.php';
+require_once __DIR__ . '/../includes/data.php';
 
 admin_require_login();
+ensure_consultations_schema();
 
 // Handle actions
 $action = $_GET['action'] ?? '';
@@ -86,6 +88,8 @@ $stats = $pdo->query("
 $token = csrf_token();
 
 // ── Helper ────────────────────────────────────────────────────────────────
+/** Nomor lokal (08xx) → format internasional untuk wa.me (62xx). */
+function wa_number(string $p): string { $d = preg_replace('/\D/', '', $p); return $d !== '' && $d[0] === '0' ? '62' . substr($d, 1) : $d; }
 function e2($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 function qstr(array $extra = []): string {
     $q = array_merge([
@@ -132,6 +136,7 @@ $active_page = 'consultations';
   .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
   .treatment-pill { display: inline-block; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: .2rem .65rem; border-radius: 999px; background: var(--gold-pale); border: 1px solid var(--gold-lt); color: #7a6420; font-size: .76rem; font-weight: 500; vertical-align: middle; }
   .message-cell { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+  .badge-unread { display: inline-block; margin-left: .35rem; padding: .1rem .5rem; border-radius: 999px; background: var(--gold); color: #fff; font-size: .62rem; font-weight: 700; letter-spacing: .03em; vertical-align: middle; }
   .actions { display: flex; gap: .35rem; align-items: center; }
   .actions .btn-sm { display: inline-flex; align-items: center; gap: .35rem; padding: .35rem .65rem; border-radius: 8px; font-size: .76rem; font-weight: 500; text-decoration: none; border: 1px solid var(--border); cursor: pointer; }
   .btn-whatsapp { background: #25D366; border-color: #25D366 !important; color: #fff; }
@@ -188,6 +193,7 @@ $active_page = 'consultations';
               <th>Nama</th>
               <th class="hide-sm">No. WhatsApp</th>
               <th>Perawatan</th>
+              <th>Jadwal Kunjungan</th>
               <th class="hide-sm">Keluhan</th>
               <th class="hide-sm">Waktu</th>
               <th>Aksi</th>
@@ -204,12 +210,22 @@ $active_page = 'consultations';
                 <?php endif; ?>
               </td>
               <td class="hide-sm">
-                <a href="https://wa.me/<?= preg_replace('/\D/', '', e2($row['phone'])) ?>" target="_blank" rel="noopener"
+                <a href="https://wa.me/<?= e2(wa_number($row['phone'])) ?>" target="_blank" rel="noopener"
                    style="color:var(--gold);text-decoration:none;">
                   <?= e2($row['phone']) ?>
                 </a>
               </td>
               <td><span class="treatment-pill" title="<?= e2($row['treatment']) ?>"><?= e2($row['treatment']) ?></span></td>
+              <td style="white-space:nowrap;font-size:.8rem;">
+                <?php if (!empty($row['visit_date'])):
+                  $vd = new DateTime($row['visit_date']);
+                  $hari = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'][(int)$vd->format('w')];
+                  $is_today = $vd->format('Y-m-d') === date('Y-m-d');
+                ?>
+                  <strong><?= $hari . ', ' . $vd->format('d-m-Y') ?></strong><?= $is_today ? ' <span class="badge-unread">Hari ini</span>' : '' ?>
+                  <div style="color:var(--muted);"><?= e2(str_replace(':', '.', (string)$row['visit_time'])) ?> WIB</div>
+                <?php else: ?><em style="opacity:.4">—</em><?php endif; ?>
+              </td>
               <td class="hide-sm message-cell" title="<?= e2($row['message']) ?>">
                 <?= $row['message'] ? e2($row['message']) : '<em style="opacity:.4">—</em>' ?>
               </td>
@@ -218,8 +234,9 @@ $active_page = 'consultations';
                 <div class="actions">
                   <!-- WhatsApp -->
                   <?php
-                    $wa_text = "Halo " . $row['name'] . ", kami dari Uvora Clinic. Menindaklanjuti permintaan konsultasi Anda mengenai " . $row['treatment'] . ". Apakah Anda masih tertarik?";
-                    $wa_link = 'https://wa.me/' . preg_replace('/\D/', '', $row['phone']) . '?text=' . rawurlencode($wa_text);
+                    $wa_jadwal = !empty($row['visit_date']) ? ' pada ' . date('d-m-Y', strtotime($row['visit_date'])) . ' pukul ' . str_replace(':', '.', (string)$row['visit_time']) . ' WIB' : '';
+                    $wa_text = "Halo " . $row['name'] . ", kami dari Uvora Clinic. Menindaklanjuti permintaan konsultasi Anda mengenai " . $row['treatment'] . $wa_jadwal . ". Kami konfirmasi jadwal tersebut ya?";
+                    $wa_link = 'https://wa.me/' . wa_number($row['phone']) . '?text=' . rawurlencode($wa_text);
                   ?>
                   <a href="<?= e2($wa_link) ?>" target="_blank" rel="noopener" class="btn-sm btn-whatsapp" title="Balas via WhatsApp">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>

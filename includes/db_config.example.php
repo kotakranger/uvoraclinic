@@ -22,4 +22,9 @@ return [
     // 'username' => 'uXXXXXXXX_uvora',
     // 'password' => 'YOUR_HOSTINGER_DB_PASSWORD',
     // 'socket'   => '',
+
+    // --- Cloudflare Turnstile (opsional; kosongkan keduanya untuk menonaktifkan) ---
+    // Buat widget di dash.cloudflare.com → Turnstile, tambahkan domain situs (mis. uvoraclinic.com).
+    'turnstile_site'   => '',
+    'turnstile_secret' => '',
 ];

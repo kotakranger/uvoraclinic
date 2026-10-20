@@ -1,10 +1,11 @@
 <?php
+date_default_timezone_set('Asia/Jakarta');
 // Semua konten landing page ada di sini supaya mudah diganti tanpa menyentuh markup.
 
 $site = [
     'name'            => 'Uvora Clinic',
-    'title'           => 'Uvora Clinic · Aesthetic Medicine',
-    'description'     => 'Uvora Clinic — klinik estetika medis premium untuk kulit sehat dan bercahaya secara alami.',
+    'title'           => 'Uvora Clinic | Klinik Kecantikan Terpercaya',
+    'description'     => 'Uvora Clinic — klinik kecantikan terpercaya dengan perawatan medis estetika oleh dokter berlisensi untuk kulit sehat dan bercahaya secara alami.',
     'whatsapp'        => '6285139372484', // format internasional tanpa "+"
     'opening_hours'   => 'Setiap hari · 10.00 – 18.00 WIB',
     'address'         => 'Ruko Grand Galaxy City Blok RSOD No.10, RT.004/RW.019, Jaka Setia, Kec. Bekasi Selatan, Kota Bekasi, Jawa Barat 17147',
@@ -210,6 +211,30 @@ function e($value)
 function rupiah($amount)
 {
     return 'Rp ' . number_format($amount, 0, ',', '.');
+}
+
+/**
+ * Kunci Cloudflare Turnstile ada di includes/db_config.php ('turnstile_site', 'turnstile_secret').
+ * Kosong = Turnstile nonaktif (form tetap dilindungi honeypot, CSRF, dan batas per IP).
+ */
+function turnstile_config(): array
+{
+    static $cfg = null;
+    if ($cfg === null) {
+        $f = __DIR__ . '/db_config.php';
+        $raw = is_file($f) ? (array) (require $f) : [];
+        $cfg = [
+            'site'   => trim((string) ($raw['turnstile_site']   ?? '')),
+            'secret' => trim((string) ($raw['turnstile_secret'] ?? '')),
+        ];
+    }
+    return $cfg;
+}
+
+function turnstile_enabled(): bool
+{
+    $c = turnstile_config();
+    return $c['site'] !== '' && $c['secret'] !== '';
 }
 
 function whatsapp_link($text = '')

@@ -293,6 +293,8 @@
       body.append("phone",     f.phone.value.trim());
       body.append("treatment", f.treatment.value.trim());
       body.append("message",   f.message ? f.message.value.trim() : "");
+      body.append("visit_date", f.visit_date ? f.visit_date.value : "");
+      body.append("visit_time", f.visit_time ? f.visit_time.value : "");
       // Honeypot field (empty for humans)
       if (f.website) body.append("website", f.website.value);
       // Cloudflare Turnstile token

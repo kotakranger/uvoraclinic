@@ -25,9 +25,29 @@
         <?php endforeach; ?>
         <option value="Konsultasi dengan dokter">Belum tahu — konsultasi dengan dokter</option>
       </select>
+      <?php
+        $slots = [];
+        for ($m = 10 * 60; $m <= 17 * 60 + 30; $m += 30) $slots[] = sprintf('%02d:%02d', intdiv($m, 60), $m % 60);
+        $today = date('Y-m-d'); $max_day = date('Y-m-d', strtotime('+90 days'));
+      ?>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <label class="block">
+          <span class="mb-1.5 block text-xs text-[#6B6459]">Tanggal kunjungan</span>
+          <input type="date" name="visit_date" required min="<?= $today ?>" max="<?= $max_day ?>" aria-label="Tanggal kunjungan" data-testid="opt1-input-date" class="w-full <?= $input_cls ?> text-[#353535]">
+        </label>
+        <label class="block">
+          <span class="mb-1.5 block text-xs text-[#6B6459]">Jam kunjungan (<?= e($site['opening_hours']) ?>)</span>
+          <select name="visit_time" required aria-label="Jam kunjungan" data-testid="opt1-input-time" class="w-full appearance-none <?= $input_cls ?> text-[#353535]">
+            <option value="" disabled selected>Pilih jam</option>
+            <?php foreach ($slots as $sl): ?><option value="<?= $sl ?>"><?= str_replace(':', '.', $sl) ?> WIB</option><?php endforeach; ?>
+          </select>
+        </label>
+      </div>
       <textarea name="message" data-testid="opt1-input-message" placeholder="Ceritakan keluhan kulit Anda" aria-label="Keluhan kulit" rows="3" class="w-full <?= $input_cls ?>"></textarea>
+      <?php if (turnstile_enabled()): ?>
       <!-- Cloudflare Turnstile — bot & DDoS protection -->
-      <div class="cf-turnstile" data-sitekey="0x4AAAAAAFT0rr7xwWFH3z3U" data-theme="light" data-language="id"></div>
+      <div class="cf-turnstile" data-sitekey="<?= e(turnstile_config()['site']) ?>" data-theme="light" data-language="id"></div>
+      <?php endif; ?>
       <button type="submit" class="group relative overflow-hidden rounded-full bg-[#dfcdaf] px-8 py-3.5 text-sm font-medium text-[#353535] transition-colors duration-500 hover:bg-[#ab8f2c] w-full" data-testid="opt1-consult-submit">
         <span class="relative z-10" data-submit-label>Kirim Permintaan Konsultasi</span>
       </button>

@@ -4,9 +4,9 @@
       <?= icon('clock', 13, 'text-[#ab8f2c]') ?>
       <?= e($site['opening_hours']) ?>
     </span>
-    <a href="https://wa.me/6281234567890" target="_blank" rel="noopener" class="inline-flex items-center gap-2 transition-colors hover:text-[#ab8f2c]" data-testid="opt1-top-wa">
+    <a href="<?= e(whatsapp_link()) ?>" target="_blank" rel="noopener" class="inline-flex items-center gap-2 transition-colors hover:text-[#ab8f2c]" data-testid="opt1-top-wa">
       <?= icon('phone', 13, 'text-[#ab8f2c]') ?>
-      WhatsApp: 0812-3456-7890
+      WhatsApp: <?= e($site['phone']) ?>
     </a>
   </div>
 </div>
