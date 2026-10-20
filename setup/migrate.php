@@ -181,6 +181,23 @@ ensure_layanan_schema();
 ensure_results_schema();
 log_msg('✓ Kolom detail layanan & tabel `results` siap', 'ok');
 
+// ─── Akun admin ────────────────────────────────────────────────────────────
+require_once dirname(__DIR__) . '/admin/auth.php';
+try {
+    $created = admin_bootstrap_user();
+    if ($created) {
+        log_msg('✓ Akun admin dibuat — CATAT SEKARANG, password hanya tampil sekali:', 'warn');
+        log_msg('    username : ' . $created[0], 'warn');
+        log_msg('    password : ' . $created[1], 'warn');
+        log_msg('  Anda akan diminta menggantinya saat login pertama.', 'warn');
+    } else {
+        log_msg('✓ Tabel akun admin siap (akun sudah ada, tidak diubah)', 'ok');
+    }
+} catch (Throwable $e) {
+    log_msg('✗ Akun admin gagal dibuat: ' . $e->getMessage(), 'err');
+    $all_ok = false;
+}
+
 // ─── Clean up old rate_limits rows (older than 24h) ───────────────────────
 try {
     $deleted = $pdo->exec("DELETE FROM rate_limits WHERE created_at < DATE_SUB(NOW(), INTERVAL 24 HOUR)");

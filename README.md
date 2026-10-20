@@ -43,12 +43,10 @@ setup/           migrate.php + layanan_data.sql — HANYA dipakai sekali saat in
 3. **Salin** `includes/db_config.example.php` → `includes/db_config.php`, isi kredensial database. (File ini tidak ikut git.)
 4. **Buat tabel**: buka `https://domain-anda/setup/migrate.php?run=1`.
    **Isi katalog layanan** (hanya jika tabel layanan kosong): di phpMyAdmin pilih database → Import → `setup/layanan_data.sql`.
-5. **Hapus folder `setup/`** dari hosting.
-6. **Ganti password admin**: buat hash dengan
-   `php -r "echo password_hash('PASSWORD-BARU', PASSWORD_BCRYPT);"`
-   lalu isi `ADMIN_PASSWORD_HASH` di `admin/auth.php`. (Password bawaan **harus** diganti sebelum live.)
-7. Pastikan folder `assets/uploads/` dapat ditulis (permission 755/775).
-8. Login di `https://domain-anda/admin/` lalu isi dokter, promo, hasil, dan foto layanan.
+5. **Akun admin**: dibuat oleh `migrate.php` (langkah 4) dengan password acak yang tampil sekali — catat. Login pertama memaksa ganti password; username & password selanjutnya diganti lewat menu **Akun**. Lupa password: di phpMyAdmin kosongkan tabel `admin_users`, upload ulang sementara `setup/migrate.php`, buka `?run=1` (akun baru + password acak), lalu hapus lagi.
+6. Pastikan folder `assets/uploads/` dapat ditulis (permission 755/775).
+7. **Hapus folder `setup/`** dari hosting.
+8. Login di `https://domain-anda/admin/`, lalu isi dokter, promo, hasil, dan foto layanan.
 
 Batas upload PHP (`upload_max_filesize`, `post_max_size`) sebaiknya ≥ 8 MB.
 

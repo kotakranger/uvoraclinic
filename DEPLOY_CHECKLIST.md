@@ -6,14 +6,10 @@
 
 ## 1. Sebelum Upload ke Hosting (Persiapan Lokal)
 
-- [ ] **Ganti Password Admin Default**
-  - Password bawaan saat ini: `uvora2026` (Wajib diganti sebelum live).
-  - Buka terminal dan jalankan:
-    ```bash
-    php -r "echo password_hash('PasswordBaruYangKuat', PASSWORD_BCRYPT);"
-    ```
-  - Salin string hash yang dihasilkan (berawalan `$2y$12$...`).
-  - Tempelkan ke konstanta `ADMIN_PASSWORD_HASH` di file [`admin/auth.php`](admin/auth.php).
+- [x] **Akun Admin** (sudah tidak lagi di kode)
+  - Akun disimpan di database dan dibuat otomatis oleh `setup/migrate.php` dengan password acak yang **tampil sekali** di halaman migrasi — catat langsung.
+  - Saat login pertama Anda dipaksa membuat password baru (min. 12 karakter) dan boleh mengganti username lewat menu **Akun**.
+  - Login dikunci 15 menit setelah 5 kali gagal; otomatis keluar setelah 2 jam tidak aktif.
 
 - [ ] **Siapkan File Kredensial Database Hosting**
   - Salin [`includes/db_config.example.php`](includes/db_config.example.php) menjadi `includes/db_config.php`.
@@ -56,7 +52,8 @@
 
 - [ ] **Login Admin Panel**
   - Buka `https://domain-anda.com/admin/login.php`
-  - Masuk dengan username: `admin` dan password baru Anda.
+  - Masuk dengan username `admin` dan password acak dari halaman migrasi, lalu buat password baru di menu **Akun**.
+  - Aktifkan SSL/HTTPS gratis di hPanel (cookie login otomatis menjadi `Secure`).
 
 - [ ] **Input Konten Pertama via Admin**
   - Tambahkan minimal 1 data di menu **Hasil (Before/After)** (agar section Galeri Transformasi muncul di beranda).

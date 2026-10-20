@@ -10,12 +10,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $user = trim($_POST['username'] ?? '');
         $pass = $_POST['password'] ?? '';
-        if (admin_login($user, $pass)) {
+        $res = admin_login($user, $pass);
+        if ($res === true) {
             header('Location: index.php');
             exit;
-        } else {
-            $error = 'Username atau password salah.';
         }
+        $error = $res;
     }
 }
 
