@@ -38,6 +38,37 @@
   // ---------------------------------------------------------------- Hero parallax
   var hero = $("[data-hero]");
   var heroImg = hero && $(".uv-hero-img", hero);
+  if (heroImg && heroImg.tagName === "VIDEO") {
+    if (reduceMotion) {
+      heroImg.removeAttribute("autoplay");
+      heroImg.pause();
+      heroImg.poster = "assets/images/hero.jpg";
+      heroImg.classList.add("is-ready");
+    } else {
+      var showHeroVideo = function () { heroImg.classList.add("is-ready"); };
+      heroImg.addEventListener("playing", showHeroVideo, { once: true });
+      if (!heroImg.paused && heroImg.readyState >= 3) showHeroVideo();
+      setTimeout(showHeroVideo, 4000);
+
+      // Playlist: putar video bergantian, lalu ulang dari awal.
+      var playlist = (heroImg.dataset.playlist || "").split(",").filter(Boolean);
+      if (playlist.length > 1) {
+        var idx = 0;
+        var preload = document.createElement("video");
+        preload.preload = "auto";
+        preload.muted = true;
+        preload.src = playlist[1];
+        heroImg.addEventListener("ended", function () {
+          idx = (idx + 1) % playlist.length;
+          heroImg.src = playlist[idx];
+          heroImg.play().catch(function () {});
+          preload.src = playlist[(idx + 1) % playlist.length];
+        });
+      } else {
+        heroImg.loop = true;
+      }
+    }
+  }
   if (heroImg && !reduceMotion) {
     var ticking = false;
     var updateParallax = function () {
