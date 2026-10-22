@@ -1,5 +1,5 @@
 <section id="top" class="relative h-[88vh] min-h-[600px] w-full overflow-hidden uv-grain" data-hero style="background:#2a2520">
-  <video class="absolute inset-0 h-full w-full object-cover uv-hero-img" src="assets/video/hero-2.mp4" autoplay muted playsinline data-playlist="assets/video/hero-2.mp4,assets/video/hero.mp4" preload="auto" aria-hidden="true" data-hero-video></video>
+  <video class="absolute inset-0 h-full w-full object-cover uv-hero-img" src="assets/video/hero-intro.mp4" autoplay muted playsinline data-playlist="assets/video/hero-intro.mp4,assets/video/hero.mp4" preload="auto" aria-hidden="true" data-hero-video></video>
   <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/40"></div>
   <div class="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center text-white">
     <div class="uv-fade-in" style="--d:.2s">
