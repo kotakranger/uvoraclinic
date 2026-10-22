@@ -57,7 +57,8 @@
         var preload = document.createElement("video");
         preload.preload = "auto";
         preload.muted = true;
-        preload.src = playlist[1];
+        // Unduh video berikutnya baru setelah video pertama jalan, agar tidak berebut bandwidth.
+        heroImg.addEventListener("playing", function () { preload.src = playlist[1]; }, { once: true });
         heroImg.addEventListener("ended", function () {
           idx = (idx + 1) % playlist.length;
           heroImg.src = playlist[idx];
