@@ -14,7 +14,8 @@ function db(): PDO
     static $pdo = null;
     if ($pdo !== null) return $pdo;
 
-    $cfg = require __DIR__ . '/db_config.php';
+    require_once __DIR__ . '/storage.php';
+    $cfg = require uv_config_file('db_config.php');
 
     // Build DSN: prefer Unix socket (MAMP) over TCP/IP (Hostinger / production)
     if (!empty($cfg['socket'])) {

@@ -28,6 +28,12 @@
   - Arsipkan seluruh isi project (zip) lalu ekstrak di dalam direktori root web hosting (biasanya `public_html`).
   - Pastikan file `index.php` berada langsung di `public_html/index.php`.
 
+- [ ] **Foto upload & kredensial disimpan di luar `public_html`**
+  - Deploy GitHub menimpa isi `public_html`, jadi foto upload admin disimpan otomatis di folder `uvora-storage/` yang **sejajar** dengan `public_html` (mis. `/home/<user>/domains/<domain>/uvora-storage/`). Dibuat sendiri saat upload pertama; jika gagal dibuat, situs jatuh balik ke `assets/uploads/` (dan foto bisa hilang saat deploy).
+  - Foto disajikan lewat `media.php` (aturan di `.htaccess`) pada URL yang sama: `assets/uploads/<folder>/<file>`.
+  - Opsional: pindahkan `includes/db_config.php` ke `uvora-storage/db_config.php` (otomatis diutamakan).
+  - Foto yang sudah terlanjur hilang harus di-upload ulang lewat admin sekali.
+
 - [ ] **Pastikan Izin Tulis Folder Uploads**
   - Pastikan folder `assets/uploads/` dan subfoldernya (`doctors`, `layanan`, `promos`, `hasil`) memiliki izin tulis (permission `755` atau `775`).
   - Pastikan modul PHP **GD** aktif di hosting (standar di Hostinger/cPanel).

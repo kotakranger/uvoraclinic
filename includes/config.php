@@ -221,7 +221,8 @@ function turnstile_config(): array
 {
     static $cfg = null;
     if ($cfg === null) {
-        $f = __DIR__ . '/db_config.php';
+        require_once __DIR__ . '/storage.php';
+        $f = uv_config_file('db_config.php');
         $raw = is_file($f) ? (array) (require $f) : [];
         $cfg = [
             'site'   => trim((string) ($raw['turnstile_site']   ?? '')),

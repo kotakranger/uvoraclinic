@@ -6,6 +6,11 @@ Options -Indexes
   RewriteEngine On
   RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
   RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+
+  # Foto upload disimpan di luar public_html (aman dari deploy): sajikan lewat media.php
+  # hanya bila file tidak ada di folder website.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^assets/uploads/([A-Za-z0-9_-]+)/([A-Za-z0-9._-]+)$ media.php?d=$1&f=$2 [L,QSA]
 </IfModule>
 
 # Header keamanan

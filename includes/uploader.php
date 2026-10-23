@@ -5,6 +5,8 @@
  * Also renders the shared "upload OR url" admin field.
  */
 
+require_once __DIR__ . '/storage.php';
+
 const UV_UPLOAD_MAX_BYTES = 5 * 1024 * 1024;   // max size of the original upload (5 MB)
 const UV_UPLOAD_MAX_EDGE  = 1200;              // longest side after resize (px)
 const UV_UPLOAD_QUALITY   = 82;
@@ -75,10 +77,8 @@ function save_uploaded_image(array $f, string $subdir): string
     imagecopyresampled($dst, $src, 0, 0, 0, 0, $nw, $nh, $w, $h);
     imagedestroy($src);
 
-    $dir = dirname(__DIR__) . '/assets/uploads/' . preg_replace('/[^a-z0-9_-]/i', '', $subdir);
-    if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
-        throw new RuntimeException('Folder upload tidak bisa dibuat.');
-    }
+    // Disimpan di storage di luar folder deploy (lihat includes/storage.php), bukan di public_html.
+    $dir = uv_upload_dir($subdir);
     $base = date('Ymd-His') . '-' . bin2hex(random_bytes(4));
     if (function_exists('imagewebp')) {
         $file = $base . '.webp';
